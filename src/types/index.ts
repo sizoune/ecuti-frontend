@@ -187,3 +187,70 @@ export interface PegawaiFilters {
   subunit_id?: number
   search?: string
 }
+
+// ============ Laporan ============
+
+export interface LaporanDashboardItem {
+  jeniscuti_id: number
+  jeniscuti_nama: string
+  verifikasi: number
+  btl: number
+  ditolak: number
+  batal: number
+  proses: number
+  terima: number
+  total: number
+}
+
+export interface LaporanUsulanItem {
+  usulcuti_id: number
+  usulcuti_tgl: string
+  usulcuti_tglawal: string
+  usulcuti_tglakhir: string
+  usulcuti_jumlah: number
+  usulcuti_alasan: string
+  usulcuti_status: CutiStatus
+  usulcuti_masakerja: string | null
+  usulcuti_tembusan: string | null
+  pegawai_id: number
+  pegawai_nip: string
+  pegawai_nama: string
+  pegawai_gelardepan: string | null
+  pegawai_gelarbelakang: string | null
+  jabatan_nama: string
+  subunit_nama: string
+  skpd_nama: string
+  eselon_nama: string | null
+  jeniscuti_nama: string
+}
+
+export interface LaporanRekapItem {
+  jeniscuti_id: number
+  jeniscuti_nama: string
+  jan: number
+  feb: number
+  mar: number
+  apr: number
+  mei: number
+  jun: number
+  jul: number
+  ags: number
+  sep: number
+  okt: number
+  nov: number
+  des: number
+  total: number
+}
+
+export interface BukuCutiItem {
+  bukucuti_id: number
+  pegawai_id: number
+  jeniscuti_id: number
+  bukucuti_tahun: number
+  bukucuti_status: string
+  jeniscuti_nama: string
+  jeniscuti_kode: string
+  pegawai_nama: string
+  pegawai_nip: string
+  [key: string]: unknown
+}
