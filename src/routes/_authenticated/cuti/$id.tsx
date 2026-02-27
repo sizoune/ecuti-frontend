@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 import { useCutiDetail, useUpdateCutiStatus, useCancelCuti } from '#/hooks/use-cuti'
 import { useAuth } from '#/lib/auth'
+import { formatNamaGelar } from '#/lib/utils'
 import type { CutiStatus } from '#/types'
 import { Button } from '#/components/ui/button'
 import { Badge } from '#/components/ui/badge'
@@ -107,7 +108,10 @@ function CutiDetailPage() {
           <CardTitle>Informasi Pengajuan</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <InfoRow label="Pegawai" value={`${cuti.pegawai_nama} (${cuti.pegawai_nip})`} />
+          <InfoRow label="Pegawai" value={`${formatNamaGelar(cuti.pegawai_nama ?? '', cuti.pegawai_gelardepan, cuti.pegawai_gelarbelakang)} (${cuti.pegawai_nip})`} />
+          <InfoRow label="SKPD" value={cuti.skpd_nama ?? '-'} />
+          <InfoRow label="Unit Kerja" value={cuti.subunit_nama ?? '-'} />
+          <InfoRow label="Jabatan" value={cuti.jabatan_nama ?? '-'} />
           <InfoRow label="Jenis Cuti" value={cuti.jeniscuti_nama ?? '-'} />
           <Separator />
           <InfoRow

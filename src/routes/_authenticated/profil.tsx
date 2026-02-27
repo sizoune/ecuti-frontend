@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
 import { usePegawaiProfile, useUpdateProfile } from '#/hooks/use-pegawai'
 import { useAuth } from '#/lib/auth'
+import { formatNamaGelar } from '#/lib/utils'
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '#/components/ui/card'
@@ -76,7 +77,7 @@ function ProfilPage() {
         </CardHeader>
         <CardContent className="space-y-3">
           <InfoRow label="NIP" value={profile?.pegawai_nip ?? user?.pegawai_nip ?? '-'} />
-          <InfoRow label="Nama" value={profile?.pegawai_nama ?? user?.pegawai_nama ?? '-'} />
+          <InfoRow label="Nama" value={formatNamaGelar(profile?.pegawai_nama ?? user?.pegawai_nama ?? '-', profile?.pegawai_gelardepan, profile?.pegawai_gelarbelakang)} />
           <InfoRow label="SKPD" value={profile?.skpd_nama ?? '-'} />
           <InfoRow label="Unit Kerja" value={profile?.subunit_nama ?? '-'} />
           <InfoRow label="Golongan" value={profile?.golongan_nama ?? '-'} />

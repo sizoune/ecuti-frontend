@@ -5,6 +5,7 @@ import { id as localeId } from 'date-fns/locale'
 import { Plus } from 'lucide-react'
 import { useCutiList } from '#/hooks/use-cuti'
 import { useAuth } from '#/lib/auth'
+import { formatNamaGelar } from '#/lib/utils'
 import type { CutiStatus } from '#/types'
 import { Button } from '#/components/ui/button'
 import { Badge } from '#/components/ui/badge'
@@ -125,7 +126,7 @@ function CutiListPage() {
                         {user?.role !== 'Pegawai' && (
                           <TableCell>
                             <div>
-                              <div className="font-medium">{cuti.pegawai_nama}</div>
+                              <div className="font-medium">{formatNamaGelar(cuti.pegawai_nama ?? '', cuti.pegawai_gelardepan, cuti.pegawai_gelarbelakang)}</div>
                               <div className="text-xs text-muted-foreground">{cuti.pegawai_nip}</div>
                             </div>
                           </TableCell>

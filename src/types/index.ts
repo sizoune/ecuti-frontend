@@ -14,6 +14,8 @@ export interface AuthUser {
   pegawai_id: number
   pegawai_nip: string
   pegawai_nama: string
+  pegawai_type: string
+  pegawai_kedudukanpns: string
   role: UserRole
   role_level: number
   skpd_id: number
@@ -28,6 +30,9 @@ export interface Pegawai {
   pegawai_id: number
   pegawai_nip: string
   pegawai_nama: string
+  pegawai_gelardepan: string | null
+  pegawai_gelarbelakang: string | null
+  pegawai_type?: string
   pegawai_kedudukanpns: string
   pegawai_email: string | null
   pegawai_nohp: string | null
@@ -71,9 +76,13 @@ export interface Cuti {
   // Joined fields
   pegawai_nama?: string
   pegawai_nip?: string
+  pegawai_gelardepan?: string | null
+  pegawai_gelarbelakang?: string | null
   jeniscuti_nama?: string
   skpd_nama?: string
   subunit_nama?: string
+  jabatan_nama?: string
+  eselon_nama?: string
   atasanlangsung_nama?: string
   pejabat_nama?: string
 }
@@ -122,6 +131,7 @@ export interface CutiStatistics {
 export interface Skpd {
   skpd_id: number
   skpd_nama: string
+  skpd_singkatan?: string
 }
 
 export interface Subunit {

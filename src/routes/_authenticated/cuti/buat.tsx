@@ -9,7 +9,7 @@ import { useCreateCuti } from '#/hooks/use-cuti'
 import { useJenisCutiList } from '#/hooks/use-master'
 import { usePegawaiSearch } from '#/hooks/use-pegawai'
 import { useAuth } from '#/lib/auth'
-import { cn } from '#/lib/utils'
+import { cn, formatNamaGelar } from '#/lib/utils'
 import type { Pegawai } from '#/types'
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
@@ -102,7 +102,7 @@ function PegawaiCombobox({
         >
           <span className="truncate">
             {selected
-              ? `${selected.pegawai_nip} / ${selected.pegawai_nama}`
+              ? `${selected.pegawai_nip} / ${formatNamaGelar(selected.pegawai_nama, selected.pegawai_gelardepan, selected.pegawai_gelarbelakang)}`
               : placeholder}
           </span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -146,7 +146,7 @@ function PegawaiCombobox({
                       />
                       <div className="flex flex-col">
                         <span className="text-sm">
-                          {p.pegawai_nip} / {p.pegawai_nama}
+                          {p.pegawai_nip} / {formatNamaGelar(p.pegawai_nama, p.pegawai_gelardepan, p.pegawai_gelarbelakang)}
                         </span>
                         {p.jabatan_nama && (
                           <span className="text-xs text-muted-foreground">
