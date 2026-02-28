@@ -380,16 +380,16 @@ function CutiKontrakPage() {
 						</div>
 					) : (
 						<>
-							<Table>
+							<Table className="table-fixed w-full">
 								<TableHeader>
 									<TableRow className="hover:bg-transparent">
-										<TableHead className="w-12">No</TableHead>
+										<TableHead className="w-[5%]">No</TableHead>
 										<TableHead>Nama Pegawai</TableHead>
 										<TableHead>Jenis Cuti</TableHead>
 										<TableHead>Tanggal</TableHead>
-										<TableHead className="text-center">Hari</TableHead>
-										<TableHead>Status</TableHead>
-										<TableHead>Aksi</TableHead>
+										<TableHead className="w-[8%] text-center">Hari</TableHead>
+										<TableHead className="w-[12%]">Status</TableHead>
+										<TableHead className="w-[8%]">Aksi</TableHead>
 									</TableRow>
 								</TableHeader>
 								<TableBody>
@@ -406,7 +406,7 @@ function CutiKontrakPage() {
 													<TableCell className="text-sm text-muted-foreground">
 														{(page - 1) * 10 + index + 1}
 													</TableCell>
-													<TableCell>
+													<TableCell className="whitespace-normal">
 														<div>
 															<div className="font-medium">
 																{[
@@ -424,10 +424,10 @@ function CutiKontrakPage() {
 															)}
 														</div>
 													</TableCell>
-													<TableCell className="text-sm">
+													<TableCell className="text-sm overflow-hidden text-ellipsis">
 														{item.jeniscuti_nama ?? "-"}
 													</TableCell>
-													<TableCell className="text-sm whitespace-nowrap">
+													<TableCell className="text-sm whitespace-nowrap overflow-hidden text-ellipsis">
 														{format(
 															new Date(item.usulcuti_tglawal),
 															"d MMM yyyy",
@@ -457,7 +457,7 @@ function CutiKontrakPage() {
 															hari
 														</Badge>
 													</TableCell>
-													<TableCell>
+													<TableCell className="overflow-hidden">
 														{item.usulcuti_status ? (
 															<Badge
 																variant="secondary"

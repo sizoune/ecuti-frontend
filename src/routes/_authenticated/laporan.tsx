@@ -637,17 +637,17 @@ function CutiBulananTab({ isSuperAdmin }: { isSuperAdmin: boolean }) {
 							))}
 						</div>
 					) : data && data.length > 0 ? (
-						<Table id="table-cuti-bulanan">
+						<Table id="table-cuti-bulanan" className="table-fixed w-full">
 							<TableHeader>
 								<TableRow>
-									<TableHead className="w-12">No</TableHead>
-									<TableHead>NIP</TableHead>
+									<TableHead className="w-[5%]">No</TableHead>
+									<TableHead className="w-[14%]">NIP</TableHead>
 									<TableHead>Nama</TableHead>
 									<TableHead>Jabatan</TableHead>
 									<TableHead>Jenis Cuti</TableHead>
-									<TableHead>Periode</TableHead>
-									<TableHead className="text-center">Hari</TableHead>
-									<TableHead>Status</TableHead>
+									<TableHead className="w-[14%]">Periode</TableHead>
+									<TableHead className="w-[6%] text-center">Hari</TableHead>
+									<TableHead className="w-[10%]">Status</TableHead>
 								</TableRow>
 							</TableHeader>
 							<TableBody>
@@ -657,26 +657,26 @@ function CutiBulananTab({ isSuperAdmin }: { isSuperAdmin: boolean }) {
 										className={idx % 2 === 0 ? "bg-muted/30" : ""}
 									>
 										<TableCell>{idx + 1}</TableCell>
-										<TableCell className="font-mono text-xs">
+										<TableCell className="font-mono text-xs overflow-hidden text-ellipsis">
 											{item.pegawai_nip}
 										</TableCell>
-										<TableCell>
+										<TableCell className="whitespace-normal">
 											{formatNamaGelar(
 												item.pegawai_nama,
 												item.pegawai_gelardepan,
 												item.pegawai_gelarbelakang,
 											)}
 										</TableCell>
-										<TableCell>{item.jabatan_nama}</TableCell>
-										<TableCell>{item.jeniscuti_nama}</TableCell>
-										<TableCell className="text-xs">
+										<TableCell className="whitespace-normal">{item.jabatan_nama}</TableCell>
+										<TableCell className="overflow-hidden text-ellipsis">{item.jeniscuti_nama}</TableCell>
+										<TableCell className="text-xs overflow-hidden text-ellipsis">
 											{formatDate(item.usulcuti_tglawal)} -{" "}
 											{formatDate(item.usulcuti_tglakhir)}
 										</TableCell>
 										<TableCell className="text-center">
 											{item.usulcuti_jumlah}
 										</TableCell>
-										<TableCell>
+										<TableCell className="overflow-hidden">
 											<Badge variant={getStatusVariant(item.usulcuti_status)}>
 												{item.usulcuti_status}
 											</Badge>
@@ -1076,17 +1076,17 @@ function BukuCutiTab({
 						</div>
 					) : isAdmin ? (
 						balanceEntries && balanceEntries.length > 0 ? (
-							<Table>
+							<Table className="table-fixed w-full">
 								<TableHeader>
 									<TableRow>
-										<TableHead className="w-12">No</TableHead>
+										<TableHead className="w-[5%]">No</TableHead>
 										<TableHead>Jenis Cuti</TableHead>
-										<TableHead className="text-center">Tahun</TableHead>
-										<TableHead>Tgl Awal</TableHead>
-										<TableHead>Tgl Akhir</TableHead>
-										<TableHead className="text-center">Lama (Hari)</TableHead>
-										<TableHead>Status</TableHead>
-										<TableHead className="text-right">Aksi</TableHead>
+										<TableHead className="w-[10%] text-center">Tahun</TableHead>
+										<TableHead className="w-[12%]">Tgl Awal</TableHead>
+										<TableHead className="w-[12%]">Tgl Akhir</TableHead>
+										<TableHead className="w-[10%] text-center">Lama (Hari)</TableHead>
+										<TableHead className="w-[12%]">Status</TableHead>
+										<TableHead className="w-[10%] text-right">Aksi</TableHead>
 									</TableRow>
 								</TableHeader>
 								<TableBody>
@@ -1096,16 +1096,16 @@ function BukuCutiTab({
 											className={idx % 2 === 0 ? "bg-muted/30" : ""}
 										>
 											<TableCell>{idx + 1}</TableCell>
-											<TableCell>{entry.jeniscuti_nama}</TableCell>
+											<TableCell className="overflow-hidden text-ellipsis">{entry.jeniscuti_nama}</TableCell>
 											<TableCell className="text-center">
 												{entry.bukucuti_tahun}
 											</TableCell>
-											<TableCell className="text-xs">
+											<TableCell className="text-xs overflow-hidden text-ellipsis">
 												{entry.bukucuti_tglawal
 													? formatDate(entry.bukucuti_tglawal)
 													: "-"}
 											</TableCell>
-											<TableCell className="text-xs">
+											<TableCell className="text-xs overflow-hidden text-ellipsis">
 												{entry.bukucuti_tglakhir
 													? formatDate(entry.bukucuti_tglakhir)
 													: "-"}

@@ -119,15 +119,15 @@ function VerifikasiBawahanPage() {
 						</div>
 					) : (
 						<>
-							<Table>
+							<Table className="table-fixed w-full">
 								<TableHeader>
 									<TableRow className="hover:bg-transparent">
 										<TableHead>Pegawai</TableHead>
 										<TableHead>Jenis Cuti</TableHead>
 										<TableHead>Periode</TableHead>
-										<TableHead className="text-center">Hari</TableHead>
-										<TableHead>Status</TableHead>
-										<TableHead />
+										<TableHead className="w-[7%] text-center">Hari</TableHead>
+										<TableHead className="w-[12%]">Status</TableHead>
+										<TableHead className="w-[15%]" />
 									</TableRow>
 								</TableHeader>
 								<TableBody>
@@ -214,7 +214,7 @@ function BawahanRow({ cuti }: { cuti: any }) {
 
 	return (
 		<TableRow className="hover:bg-muted/40 transition-colors">
-			<TableCell>
+			<TableCell className="whitespace-normal">
 				<div>
 					<div className="font-medium">{cuti.pegawai_nama}</div>
 					<div className="text-xs text-muted-foreground font-mono">
@@ -222,15 +222,15 @@ function BawahanRow({ cuti }: { cuti: any }) {
 					</div>
 				</div>
 			</TableCell>
-			<TableCell className="text-sm">{cuti.jeniscuti_nama}</TableCell>
-			<TableCell className="text-sm whitespace-nowrap">
+			<TableCell className="text-sm overflow-hidden text-ellipsis">{cuti.jeniscuti_nama}</TableCell>
+			<TableCell className="text-sm whitespace-nowrap overflow-hidden text-ellipsis">
 				{format(new Date(cuti.usulcuti_tglawal), "dd/MM/yyyy")} –{" "}
 				{format(new Date(cuti.usulcuti_tglakhir), "dd/MM/yyyy")}
 			</TableCell>
 			<TableCell className="text-center font-medium">
 				{cuti.usulcuti_jumlah}
 			</TableCell>
-			<TableCell>
+			<TableCell className="overflow-hidden">
 				<Badge variant="secondary" className={cfg?.className ?? ""}>
 					{cfg?.label ?? cuti.usulcuti_status}
 				</Badge>

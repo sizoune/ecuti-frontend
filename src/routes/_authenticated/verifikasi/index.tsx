@@ -270,7 +270,7 @@ function VerifikasiRow({
 
 	return (
 		<TableRow className="hover:bg-muted/40 transition-colors">
-			<TableCell>
+			<TableCell className="whitespace-normal">
 				<div>
 					<div className="font-medium">{cuti.pegawai_nama}</div>
 					<div className="text-xs text-muted-foreground font-mono">
@@ -278,15 +278,15 @@ function VerifikasiRow({
 					</div>
 				</div>
 			</TableCell>
-			<TableCell className="text-sm">{cuti.jeniscuti_nama}</TableCell>
-			<TableCell className="text-sm whitespace-nowrap">
+			<TableCell className="text-sm overflow-hidden text-ellipsis">{cuti.jeniscuti_nama}</TableCell>
+			<TableCell className="text-sm whitespace-nowrap overflow-hidden text-ellipsis">
 				{format(new Date(cuti.usulcuti_tglawal), "dd/MM/yyyy")} –{" "}
 				{format(new Date(cuti.usulcuti_tglakhir), "dd/MM/yyyy")}
 			</TableCell>
 			<TableCell className="text-center font-medium">
 				{cuti.usulcuti_jumlah}
 			</TableCell>
-			<TableCell>
+			<TableCell className="overflow-hidden">
 				<Badge variant="secondary" className={cfg?.className ?? ""}>
 					{cfg?.label ?? cuti.usulcuti_status}
 				</Badge>

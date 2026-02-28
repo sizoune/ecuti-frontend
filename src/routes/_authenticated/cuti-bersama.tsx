@@ -140,18 +140,18 @@ function CutiBersamaPage() {
 						</div>
 					) : (
 						<>
-							<Table>
+							<Table className="table-fixed w-full">
 								<TableHeader>
 									<TableRow className="hover:bg-transparent">
-										<TableHead className="w-12">No</TableHead>
+										<TableHead className="w-[5%]">No</TableHead>
 										<TableHead>Nama Hari Libur</TableHead>
-										<TableHead>Tanggal Awal</TableHead>
-										<TableHead>Tanggal Akhir</TableHead>
-										<TableHead className="text-center">Jumlah Hari</TableHead>
-										<TableHead className="text-center">Tahun</TableHead>
-										<TableHead className="text-center">File</TableHead>
+										<TableHead className="w-[12%]">Tanggal Awal</TableHead>
+										<TableHead className="w-[12%]">Tanggal Akhir</TableHead>
+										<TableHead className="w-[10%] text-center">Jumlah Hari</TableHead>
+										<TableHead className="w-[8%] text-center">Tahun</TableHead>
+										<TableHead className="w-[8%] text-center">File</TableHead>
 										{isSuperAdmin && (
-											<TableHead className="text-center">Aksi</TableHead>
+											<TableHead className="w-[8%] text-center">Aksi</TableHead>
 										)}
 									</TableRow>
 								</TableHeader>
@@ -165,13 +165,13 @@ function CutiBersamaPage() {
 												<TableCell className="text-muted-foreground">
 													{(page - 1) * LIMIT + idx + 1}
 												</TableCell>
-												<TableCell className="font-medium">
+												<TableCell className="font-medium whitespace-normal">
 													{item.cutibersama_nama}
 												</TableCell>
-												<TableCell className="text-sm">
+												<TableCell className="text-sm overflow-hidden text-ellipsis">
 													{formatTanggal(item.cutibersama_tglawal)}
 												</TableCell>
-												<TableCell className="text-sm">
+												<TableCell className="text-sm overflow-hidden text-ellipsis">
 													{formatTanggal(item.cutibersama_tglakhir)}
 												</TableCell>
 												<TableCell className="text-center">
