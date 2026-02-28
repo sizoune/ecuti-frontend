@@ -186,7 +186,7 @@ export function AppSidebar() {
                       isActive={
                         item.to === '/'
                           ? currentPath === '/'
-                          : currentPath.startsWith(item.to)
+                          : currentPath === item.to || currentPath.startsWith(`${item.to}/`)
                       }
                     >
                       <Link to={item.to}>

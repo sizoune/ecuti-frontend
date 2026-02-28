@@ -545,13 +545,17 @@ function CutiDetailPage() {
 			{/* Print-only layout */}
 			<style>{`
         @media print {
-          body > * { display: none !important; }
-          #print-surat-cuti { display: block !important; }
-          .print\\:hidden { display: none !important; }
+          body * { visibility: hidden; }
+          #print-surat-cuti, #print-surat-cuti * { visibility: visible; }
+          #print-surat-cuti {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+          }
         }
-        #print-surat-cuti { display: none; }
       `}</style>
-			<div id="print-surat-cuti" className="hidden">
+			<div id="print-surat-cuti" className="hidden print:!block">
 				<div
 					style={{
 						fontFamily: "serif",
