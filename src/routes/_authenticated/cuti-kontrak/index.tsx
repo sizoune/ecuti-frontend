@@ -1,5 +1,5 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { format } from "date-fns";
+import { differenceInCalendarDays, format } from "date-fns";
 import { id as localeId } from "date-fns/locale";
 import { Ban, Check, Eye, FileText, Plus, X } from "lucide-react";
 import { useState } from "react";
@@ -47,9 +47,7 @@ export const Route = createFileRoute("/_authenticated/cuti-kontrak/")({
 		const stored = localStorage.getItem("user");
 		if (stored) {
 			const user = JSON.parse(stored);
-			if (
-				!["Super Admin", "Admin SKPD", "Admin Uker"].includes(user.role)
-			) {
+			if (!["Super Admin", "Admin SKPD", "Admin Uker"].includes(user.role)) {
 				throw redirect({ to: "/" });
 			}
 		}
@@ -392,7 +390,9 @@ function CutiKontrakPage() {
 								<TableBody>
 									{data?.data && data.data.length > 0 ? (
 										data.data.map((item, index) => {
-											const cfg = statusConfig[item.usulcuti_status];
+											const cfg = item.usulcuti_status
+												? statusConfig[item.usulcuti_status]
+												: null;
 											return (
 												<TableRow
 													key={item.usulkontrak_id}
@@ -444,16 +444,27 @@ function CutiKontrakPage() {
 															variant="secondary"
 															className="bg-blue-50 text-blue-700 border-blue-200"
 														>
-															{item.usulcuti_jumlah} hari
+															{item.usulcuti_jumlah ??
+																differenceInCalendarDays(
+																	new Date(item.usulcuti_tglakhir),
+																	new Date(item.usulcuti_tglawal),
+																) + 1}{" "}
+															hari
 														</Badge>
 													</TableCell>
 													<TableCell>
-														<Badge
-															variant="secondary"
-															className={cfg?.className ?? ""}
-														>
-															{cfg?.label ?? item.usulcuti_status}
-														</Badge>
+														{item.usulcuti_status ? (
+															<Badge
+																variant="secondary"
+																className={cfg?.className ?? ""}
+															>
+																{cfg?.label ?? item.usulcuti_status}
+															</Badge>
+														) : (
+															<span className="text-sm text-muted-foreground">
+																—
+															</span>
+														)}
 													</TableCell>
 													<TableCell>
 														<RowActions

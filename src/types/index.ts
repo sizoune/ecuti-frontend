@@ -350,14 +350,10 @@ export interface CutiKontrak {
 	jeniscuti_id: number;
 	usulcuti_tglawal: string;
 	usulcuti_tglakhir: string;
-	usulcuti_jumlah: number;
+	usulcuti_jumlah?: number | null;
 	usulcuti_alasan: string;
 	usulcuti_alamat: string;
-	usulcuti_status: CutiStatus;
-	atasanlangsung_id: number | null;
-	atasanlangsung_status: string | null;
-	pejabat_id: number | null;
-	pejabat_status: string | null;
+	usulcuti_status?: CutiStatus | null;
 	created_at: string;
 	updated_at?: string;
 	// Joined fields

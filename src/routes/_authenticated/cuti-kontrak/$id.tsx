@@ -4,7 +4,7 @@ import {
 	redirect,
 	useNavigate,
 } from "@tanstack/react-router";
-import { format } from "date-fns";
+import { differenceInCalendarDays, format } from "date-fns";
 import { id as localeId } from "date-fns/locale";
 import {
 	ArrowLeft,
@@ -220,11 +220,13 @@ function CutiKontrakDetail() {
 		);
 	}
 
-	const cfg = statusConfig[cuti.usulcuti_status] ?? {
-		label: cuti.usulcuti_status,
-		className: "bg-gray-50 border-gray-200 text-gray-700",
-		badgeClassName: "bg-gray-100 text-gray-700 border border-gray-200",
-	};
+	const cfg = cuti.usulcuti_status
+		? (statusConfig[cuti.usulcuti_status] ?? {
+				label: cuti.usulcuti_status,
+				className: "bg-gray-50 border-gray-200 text-gray-700",
+				badgeClassName: "bg-gray-100 text-gray-700 border border-gray-200",
+			})
+		: null;
 
 	return (
 		<div className="mx-auto max-w-2xl space-y-5">
@@ -248,22 +250,24 @@ function CutiKontrakDetail() {
 			</div>
 
 			{/* Status Banner */}
-			<div className={`rounded-lg border px-4 py-3 ${cfg.className}`}>
-				<div className="flex items-center justify-between gap-3">
-					<div>
-						<p className="text-xs font-medium uppercase tracking-wider opacity-70">
-							Status Pengajuan
-						</p>
-						<p className="mt-0.5 text-base font-semibold">{cfg.label}</p>
+			{cfg && (
+				<div className={`rounded-lg border px-4 py-3 ${cfg.className}`}>
+					<div className="flex items-center justify-between gap-3">
+						<div>
+							<p className="text-xs font-medium uppercase tracking-wider opacity-70">
+								Status Pengajuan
+							</p>
+							<p className="mt-0.5 text-base font-semibold">{cfg.label}</p>
+						</div>
+						<Badge
+							variant="secondary"
+							className={`text-sm ${cfg.badgeClassName}`}
+						>
+							{cuti.usulcuti_status}
+						</Badge>
 					</div>
-					<Badge
-						variant="secondary"
-						className={`text-sm ${cfg.badgeClassName}`}
-					>
-						{cuti.usulcuti_status}
-					</Badge>
 				</div>
-			</div>
+			)}
 
 			{/* Detail Card */}
 			<Card>
@@ -302,7 +306,14 @@ function CutiKontrakDetail() {
 							})}
 						</InfoRow>
 						<InfoRow label="Jumlah Hari">
-							<span className="font-semibold">{cuti.usulcuti_jumlah} hari</span>
+							<span className="font-semibold">
+								{cuti.usulcuti_jumlah ??
+									differenceInCalendarDays(
+										new Date(cuti.usulcuti_tglakhir),
+										new Date(cuti.usulcuti_tglawal),
+									) + 1}{" "}
+								hari
+							</span>
 						</InfoRow>
 					</DetailSection>
 
