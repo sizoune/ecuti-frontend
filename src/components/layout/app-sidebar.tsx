@@ -9,6 +9,8 @@ import {
   User,
   Users,
   UserCog,
+  CalendarCheck,
+  FileSignature,
 } from 'lucide-react'
 import { useAuth } from '#/lib/auth'
 import type { UserRole } from '#/types'
@@ -68,6 +70,18 @@ const navItems: NavItem[] = [
     roles: ['Super Admin', 'Admin SKPD', 'Admin Uker', 'Pegawai'],
   },
   {
+    title: 'Cuti Kontrak',
+    to: '/cuti-kontrak',
+    icon: FileSignature,
+    roles: ['Super Admin', 'Admin SKPD', 'Admin Uker'],
+  },
+  {
+    title: 'Cuti Bersama',
+    to: '/cuti-bersama',
+    icon: CalendarCheck,
+    roles: ['Super Admin', 'Admin SKPD', 'Admin Uker'],
+  },
+  {
     title: 'Verifikasi',
     to: '/verifikasi',
     icon: CheckCircle,
@@ -95,7 +109,7 @@ const navItems: NavItem[] = [
     title: 'Kode Cuti',
     to: '/kode-cuti',
     icon: Settings,
-    roles: ['Admin SKPD'],
+    roles: ['Super Admin', 'Admin SKPD', 'Admin Uker'],
   },
   {
     title: 'Manajemen User',

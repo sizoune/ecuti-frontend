@@ -13,10 +13,10 @@ export function useLaporanDashboard(tahun?: number) {
     queryFn: async () => {
       const params = new URLSearchParams()
       if (tahun) params.set('tahun', String(tahun))
-      const { data } = await api.get<LaporanDashboardItem[]>(
+      const { data } = await api.get<{ data: LaporanDashboardItem[] }>(
         `/laporan/dashboard?${params}`,
       )
-      return data
+      return data.data
     },
   })
 }
@@ -37,10 +37,10 @@ export function useLaporanCutiBulanan(filters: CutiBulananFilters) {
           params.set(key, String(value))
         }
       }
-      const { data } = await api.get<LaporanUsulanItem[]>(
+      const { data } = await api.get<{ data: LaporanUsulanItem[] }>(
         `/laporan/cuti-bulanan?${params}`,
       )
-      return data
+      return data.data
     },
     enabled: !!filters.tahun && !!filters.bulan,
   })
@@ -61,10 +61,10 @@ export function useLaporanRekapitulasi(filters: RekapitulasiFilters) {
           params.set(key, String(value))
         }
       }
-      const { data } = await api.get<LaporanRekapItem[]>(
+      const { data } = await api.get<{ data: LaporanRekapItem[] }>(
         `/laporan/rekapitulasi?${params}`,
       )
-      return data
+      return data.data
     },
     enabled: !!filters.tahun,
   })
@@ -76,10 +76,10 @@ export function useBukuCuti(pegawaiId?: number, tahun?: number) {
     queryFn: async () => {
       const params = new URLSearchParams()
       if (tahun) params.set('tahun', String(tahun))
-      const { data } = await api.get<BukuCutiItem[]>(
+      const { data } = await api.get<{ data: BukuCutiItem[] }>(
         `/laporan/buku/${pegawaiId}?${params}`,
       )
-      return data
+      return data.data
     },
     enabled: !!pegawaiId,
   })

@@ -63,7 +63,7 @@ function DashboardPage() {
       )}
 
       <div>
-        <h3 className="mb-4 text-lg font-semibold">Sisa Cuti Tahun {currentYear}</h3>
+        <h3 className="mb-4 text-lg font-semibold">Penggunaan Cuti Tahun {currentYear}</h3>
         {balanceLoading ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 3 }).map((_, i) => (
@@ -80,18 +80,10 @@ function DashboardPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{item.sisa}</div>
+                  <div className="text-2xl font-bold">{item.terpakai}</div>
                   <p className="text-xs text-muted-foreground">
-                    Terpakai {item.terpakai} dari {item.total} hari
+                    hari terpakai
                   </p>
-                  <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-secondary">
-                    <div
-                      className="h-full rounded-full bg-primary transition-all"
-                      style={{
-                        width: `${item.total > 0 ? (item.terpakai / item.total) * 100 : 0}%`,
-                      }}
-                    />
-                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -99,7 +91,7 @@ function DashboardPage() {
         ) : (
           <Card>
             <CardContent className="py-8 text-center text-muted-foreground">
-              Data sisa cuti tidak tersedia
+              Belum ada data penggunaan cuti
             </CardContent>
           </Card>
         )}

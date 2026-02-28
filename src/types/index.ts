@@ -65,12 +65,21 @@ export interface Cuti {
   usulcuti_alamat: string | null
   usulcuti_lokasi: string | null
   usulcuti_status: CutiStatus
+  usulcuti_tgl: string | null
+  usulcuti_masakerja: string | null
+  usulcuti_tembusan: 'SKPD' | 'BKPP' | null
+  usulcuti_no: number | null
+  usulcuti_kode: string | null
   atasanlangsung_id: number | null
+  atasanlangsung_jabatan: number | null
   atasanlangsung_status: string | null
   pejabat_id: number | null
+  pejabat_jabatan: number | null
   pejabat_status: string | null
   skpd_id: number
   subunit_id: number
+  jabatan_id: number
+  eselon_id: number
   created_at: string
   updated_at: string
   // Joined fields
@@ -108,9 +117,24 @@ export interface UpdateCutiStatusRequest {
 export interface CutiBalance {
   jeniscuti_id: number
   jeniscuti_nama: string
-  sisa: number
   terpakai: number
-  total: number
+}
+
+// Raw cuti_buku entry from backend GET /cuti/balance
+export interface CutiBalanceEntry {
+  bukucuti_id: number
+  pegawai_id: number
+  jeniscuti_id: number
+  bukucuti_tahun: number
+  bukucuti_tglawal: string | null
+  bukucuti_tglakhir: string | null
+  bukucuti_lama: number
+  bukucuti_ambil: number
+  bukucuti_status: string
+  bukucuti_edit: string
+  jeniscuti_nama: string
+  jeniscuti_kode: string
+  [key: string]: unknown
 }
 
 export interface CutiStatistics {
@@ -120,10 +144,16 @@ export interface CutiStatistics {
   total_proses: number
   total_batal: number
   by_jenis?: Array<{
-    jeniscuti_id: number
     jeniscuti_nama: string
+    jeniscuti_kode: string
     total: number
   }>
+}
+
+// Raw response from backend GET /cuti/statistics
+export interface CutiStatisticsResponse {
+  byStatus: Array<{ status: string; jumlah: number }>
+  byJenis: Array<{ jeniscuti_nama: string; jeniscuti_kode: string; jumlah: number }>
 }
 
 // ============ Master Data ============
@@ -143,6 +173,9 @@ export interface Subunit {
 export interface JenisCuti {
   jeniscuti_id: number
   jeniscuti_nama: string
+  jeniscuti_kode?: string
+  jeniscuti_maxhari?: number
+  jeniscuti_status?: number
 }
 
 export interface Golongan {
@@ -253,4 +286,140 @@ export interface BukuCutiItem {
   pegawai_nama: string
   pegawai_nip: string
   [key: string]: unknown
+}
+
+// ============ Cuti Bersama ============
+
+export interface CutiBersama {
+  cutibersama_id: number
+  cutibersama_nama: string
+  cutibersama_tglawal: string
+  cutibersama_tglakhir: string
+  cutibersama_jumlah: number
+  cutibersama_tahun: number
+  cutibersama_file: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface CreateCutiBersamaRequest {
+  cutibersama_nama: string
+  cutibersama_tglawal: string
+  cutibersama_tglakhir: string
+  cutibersama_jumlah: number
+  cutibersama_tahun: number
+  cutibersama_file?: string
+}
+
+export interface CutiBersamaFilters {
+  tahun?: number
+  page?: number
+  limit?: number
+}
+
+// ============ Cuti Kontrak ============
+
+export interface CutiKontrak {
+  usulcutikontrak_id: number
+  pegawai_id: number
+  jeniscuti_id: number
+  usulcutikontrak_tglawal: string
+  usulcutikontrak_tglakhir: string
+  usulcutikontrak_jumlah: number
+  usulcutikontrak_alasan: string
+  usulcutikontrak_alamat: string
+  usulcutikontrak_status: CutiStatus
+  usulcutikontrak_tgl: string | null
+  atasanlangsung_id: number | null
+  atasanlangsung_status: string | null
+  pejabat_id: number | null
+  pejabat_status: string | null
+  skpd_id: number
+  subunit_id: number
+  created_at: string
+  updated_at?: string
+  // Joined fields
+  pegawai_nama?: string
+  pegawai_nip?: string
+  pegawai_gelardepan?: string | null
+  pegawai_gelarbelakang?: string | null
+  jeniscuti_nama?: string
+  skpd_nama?: string
+  atasanlangsung_nama?: string
+  pejabat_nama?: string
+}
+
+export interface CreateCutiKontrakRequest {
+  pegawai_id: number
+  jeniscuti_id: number
+  usulcutikontrak_tglawal: string
+  usulcutikontrak_tglakhir: string
+  usulcutikontrak_jumlah: number
+  usulcutikontrak_alasan: string
+  usulcutikontrak_alamat: string
+  atasanlangsung_id: number
+  pejabat_id: number
+}
+
+export interface UpdateCutiKontrakStatusRequest {
+  usulcutikontrak_status?: CutiStatus
+  atasanlangsung_status?: string
+  pejabat_status?: string
+}
+
+export interface CutiKontrakFilters {
+  page?: number
+  limit?: number
+  pegawai_id?: number
+  skpd_id?: number
+  status?: string
+  jeniscuti_id?: number
+  tahun?: number
+}
+
+// ============ Kode Cuti ============
+
+export interface KodeCuti {
+  kode_id: number
+  skpd_id: number
+  kode_awal: string
+  kode_tengah: string
+  created_at: string
+  updated_at: string
+}
+
+export interface CreateKodeCutiRequest {
+  skpd_id: number
+  kode_awal: string
+  kode_tengah: string
+}
+
+export interface UpdateKodeCutiRequest {
+  kode_awal?: string
+  kode_tengah?: string
+}
+
+// ============ Manajemen User ============
+
+export interface UserRoleAssignment {
+  pegawai_id: number
+  role_id: number
+  skpd_id: number
+  created_by?: number
+  pegawai_nama?: string
+  pegawai_nip?: string
+  role_nama?: string
+}
+
+export interface AssignRoleRequest {
+  pegawai_id: number
+  role_id: number
+  skpd_id: number
+}
+
+export interface UserRoleFilters {
+  skpd_id?: number
+  role_id?: number
+  page?: number
+  limit?: number
 }

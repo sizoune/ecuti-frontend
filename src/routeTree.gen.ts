@@ -16,9 +16,11 @@ import { Route as AuthenticatedProfilRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedManajemenUserRouteImport } from './routes/_authenticated/manajemen-user'
 import { Route as AuthenticatedLaporanRouteImport } from './routes/_authenticated/laporan'
 import { Route as AuthenticatedKodeCutiRouteImport } from './routes/_authenticated/kode-cuti'
+import { Route as AuthenticatedCutiBersamaRouteImport } from './routes/_authenticated/cuti-bersama'
 import { Route as AuthenticatedVerifikasiIndexRouteImport } from './routes/_authenticated/verifikasi/index'
 import { Route as AuthenticatedPegawaiIndexRouteImport } from './routes/_authenticated/pegawai/index'
 import { Route as AuthenticatedCutiIndexRouteImport } from './routes/_authenticated/cuti/index'
+import { Route as AuthenticatedCutiKontrakIndexRouteImport } from './routes/_authenticated/cuti-kontrak/index'
 import { Route as AuthenticatedVerifikasiBawahanRouteImport } from './routes/_authenticated/verifikasi/bawahan'
 import { Route as AuthenticatedCutiBuatRouteImport } from './routes/_authenticated/cuti/buat'
 import { Route as AuthenticatedCutiIdRouteImport } from './routes/_authenticated/cuti/$id'
@@ -58,6 +60,12 @@ const AuthenticatedKodeCutiRoute = AuthenticatedKodeCutiRouteImport.update({
   path: '/kode-cuti',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedCutiBersamaRoute =
+  AuthenticatedCutiBersamaRouteImport.update({
+    id: '/cuti-bersama',
+    path: '/cuti-bersama',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedVerifikasiIndexRoute =
   AuthenticatedVerifikasiIndexRouteImport.update({
     id: '/verifikasi/',
@@ -75,6 +83,12 @@ const AuthenticatedCutiIndexRoute = AuthenticatedCutiIndexRouteImport.update({
   path: '/cuti/',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedCutiKontrakIndexRoute =
+  AuthenticatedCutiKontrakIndexRouteImport.update({
+    id: '/cuti-kontrak/',
+    path: '/cuti-kontrak/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedVerifikasiBawahanRoute =
   AuthenticatedVerifikasiBawahanRouteImport.update({
     id: '/verifikasi/bawahan',
@@ -95,6 +109,7 @@ const AuthenticatedCutiIdRoute = AuthenticatedCutiIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/login': typeof LoginRoute
+  '/cuti-bersama': typeof AuthenticatedCutiBersamaRoute
   '/kode-cuti': typeof AuthenticatedKodeCutiRoute
   '/laporan': typeof AuthenticatedLaporanRoute
   '/manajemen-user': typeof AuthenticatedManajemenUserRoute
@@ -102,12 +117,14 @@ export interface FileRoutesByFullPath {
   '/cuti/$id': typeof AuthenticatedCutiIdRoute
   '/cuti/buat': typeof AuthenticatedCutiBuatRoute
   '/verifikasi/bawahan': typeof AuthenticatedVerifikasiBawahanRoute
+  '/cuti-kontrak/': typeof AuthenticatedCutiKontrakIndexRoute
   '/cuti/': typeof AuthenticatedCutiIndexRoute
   '/pegawai/': typeof AuthenticatedPegawaiIndexRoute
   '/verifikasi/': typeof AuthenticatedVerifikasiIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
+  '/cuti-bersama': typeof AuthenticatedCutiBersamaRoute
   '/kode-cuti': typeof AuthenticatedKodeCutiRoute
   '/laporan': typeof AuthenticatedLaporanRoute
   '/manajemen-user': typeof AuthenticatedManajemenUserRoute
@@ -116,6 +133,7 @@ export interface FileRoutesByTo {
   '/cuti/$id': typeof AuthenticatedCutiIdRoute
   '/cuti/buat': typeof AuthenticatedCutiBuatRoute
   '/verifikasi/bawahan': typeof AuthenticatedVerifikasiBawahanRoute
+  '/cuti-kontrak': typeof AuthenticatedCutiKontrakIndexRoute
   '/cuti': typeof AuthenticatedCutiIndexRoute
   '/pegawai': typeof AuthenticatedPegawaiIndexRoute
   '/verifikasi': typeof AuthenticatedVerifikasiIndexRoute
@@ -124,6 +142,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
+  '/_authenticated/cuti-bersama': typeof AuthenticatedCutiBersamaRoute
   '/_authenticated/kode-cuti': typeof AuthenticatedKodeCutiRoute
   '/_authenticated/laporan': typeof AuthenticatedLaporanRoute
   '/_authenticated/manajemen-user': typeof AuthenticatedManajemenUserRoute
@@ -132,6 +151,7 @@ export interface FileRoutesById {
   '/_authenticated/cuti/$id': typeof AuthenticatedCutiIdRoute
   '/_authenticated/cuti/buat': typeof AuthenticatedCutiBuatRoute
   '/_authenticated/verifikasi/bawahan': typeof AuthenticatedVerifikasiBawahanRoute
+  '/_authenticated/cuti-kontrak/': typeof AuthenticatedCutiKontrakIndexRoute
   '/_authenticated/cuti/': typeof AuthenticatedCutiIndexRoute
   '/_authenticated/pegawai/': typeof AuthenticatedPegawaiIndexRoute
   '/_authenticated/verifikasi/': typeof AuthenticatedVerifikasiIndexRoute
@@ -141,6 +161,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/cuti-bersama'
     | '/kode-cuti'
     | '/laporan'
     | '/manajemen-user'
@@ -148,12 +169,14 @@ export interface FileRouteTypes {
     | '/cuti/$id'
     | '/cuti/buat'
     | '/verifikasi/bawahan'
+    | '/cuti-kontrak/'
     | '/cuti/'
     | '/pegawai/'
     | '/verifikasi/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
+    | '/cuti-bersama'
     | '/kode-cuti'
     | '/laporan'
     | '/manajemen-user'
@@ -162,6 +185,7 @@ export interface FileRouteTypes {
     | '/cuti/$id'
     | '/cuti/buat'
     | '/verifikasi/bawahan'
+    | '/cuti-kontrak'
     | '/cuti'
     | '/pegawai'
     | '/verifikasi'
@@ -169,6 +193,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_authenticated'
     | '/login'
+    | '/_authenticated/cuti-bersama'
     | '/_authenticated/kode-cuti'
     | '/_authenticated/laporan'
     | '/_authenticated/manajemen-user'
@@ -177,6 +202,7 @@ export interface FileRouteTypes {
     | '/_authenticated/cuti/$id'
     | '/_authenticated/cuti/buat'
     | '/_authenticated/verifikasi/bawahan'
+    | '/_authenticated/cuti-kontrak/'
     | '/_authenticated/cuti/'
     | '/_authenticated/pegawai/'
     | '/_authenticated/verifikasi/'
@@ -238,6 +264,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedKodeCutiRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/cuti-bersama': {
+      id: '/_authenticated/cuti-bersama'
+      path: '/cuti-bersama'
+      fullPath: '/cuti-bersama'
+      preLoaderRoute: typeof AuthenticatedCutiBersamaRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/verifikasi/': {
       id: '/_authenticated/verifikasi/'
       path: '/verifikasi'
@@ -257,6 +290,13 @@ declare module '@tanstack/react-router' {
       path: '/cuti'
       fullPath: '/cuti/'
       preLoaderRoute: typeof AuthenticatedCutiIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/cuti-kontrak/': {
+      id: '/_authenticated/cuti-kontrak/'
+      path: '/cuti-kontrak'
+      fullPath: '/cuti-kontrak/'
+      preLoaderRoute: typeof AuthenticatedCutiKontrakIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/verifikasi/bawahan': {
@@ -284,6 +324,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedCutiBersamaRoute: typeof AuthenticatedCutiBersamaRoute
   AuthenticatedKodeCutiRoute: typeof AuthenticatedKodeCutiRoute
   AuthenticatedLaporanRoute: typeof AuthenticatedLaporanRoute
   AuthenticatedManajemenUserRoute: typeof AuthenticatedManajemenUserRoute
@@ -292,12 +333,14 @@ interface AuthenticatedRouteChildren {
   AuthenticatedCutiIdRoute: typeof AuthenticatedCutiIdRoute
   AuthenticatedCutiBuatRoute: typeof AuthenticatedCutiBuatRoute
   AuthenticatedVerifikasiBawahanRoute: typeof AuthenticatedVerifikasiBawahanRoute
+  AuthenticatedCutiKontrakIndexRoute: typeof AuthenticatedCutiKontrakIndexRoute
   AuthenticatedCutiIndexRoute: typeof AuthenticatedCutiIndexRoute
   AuthenticatedPegawaiIndexRoute: typeof AuthenticatedPegawaiIndexRoute
   AuthenticatedVerifikasiIndexRoute: typeof AuthenticatedVerifikasiIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedCutiBersamaRoute: AuthenticatedCutiBersamaRoute,
   AuthenticatedKodeCutiRoute: AuthenticatedKodeCutiRoute,
   AuthenticatedLaporanRoute: AuthenticatedLaporanRoute,
   AuthenticatedManajemenUserRoute: AuthenticatedManajemenUserRoute,
@@ -306,6 +349,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCutiIdRoute: AuthenticatedCutiIdRoute,
   AuthenticatedCutiBuatRoute: AuthenticatedCutiBuatRoute,
   AuthenticatedVerifikasiBawahanRoute: AuthenticatedVerifikasiBawahanRoute,
+  AuthenticatedCutiKontrakIndexRoute: AuthenticatedCutiKontrakIndexRoute,
   AuthenticatedCutiIndexRoute: AuthenticatedCutiIndexRoute,
   AuthenticatedPegawaiIndexRoute: AuthenticatedPegawaiIndexRoute,
   AuthenticatedVerifikasiIndexRoute: AuthenticatedVerifikasiIndexRoute,

@@ -13,6 +13,7 @@ import {
 } from '#/components/ui/dropdown-menu'
 import { SidebarTrigger } from '#/components/ui/sidebar'
 import { Separator } from '#/components/ui/separator'
+import { ThemeToggle } from '#/components/theme-toggle'
 
 export function AppHeader() {
   const { user, logout } = useAuth()
@@ -37,8 +38,8 @@ export function AppHeader() {
       <h1 className="text-sm font-medium">Sistem Manajemen Cuti Elektronik</h1>
 
       <div className="ml-auto flex items-center gap-3">
+        <ThemeToggle />
         <Badge variant="secondary" className="hidden sm:inline-flex">
-          {user?.role}
         </Badge>
 
         <DropdownMenu>
