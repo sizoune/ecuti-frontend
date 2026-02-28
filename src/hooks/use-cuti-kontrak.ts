@@ -41,7 +41,7 @@ export function useCreateCutiKontrak() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (payload: CreateCutiKontrakRequest) => {
-      const { data } = await api.post<{ usulcutikontrak_id: number }>(
+      const { data } = await api.post<{ usulkontrak_id: number }>(
         '/cuti-kontrak',
         payload,
       )

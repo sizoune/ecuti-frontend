@@ -345,16 +345,16 @@ export interface CutiBersamaFilters {
 // ============ Cuti Kontrak ============
 
 export interface CutiKontrak {
-	usulcutikontrak_id: number;
+	usulkontrak_id: number;
 	pegawai_id: number;
 	jeniscuti_id: number;
-	usulcutikontrak_tglawal: string;
-	usulcutikontrak_tglakhir: string;
-	usulcutikontrak_jumlah: number;
-	usulcutikontrak_alasan: string;
-	usulcutikontrak_alamat: string;
-	usulcutikontrak_status: CutiStatus;
-	usulcutikontrak_tgl: string | null;
+	usulcuti_tglawal: string;
+	usulcuti_tglakhir: string;
+	usulcuti_jumlah: number;
+	usulcuti_alasan: string;
+	usulcuti_alamat: string;
+	usulcuti_status: CutiStatus;
+	usulcuti_tgl: string | null;
 	atasanlangsung_id: number | null;
 	atasanlangsung_status: string | null;
 	pejabat_id: number | null;
@@ -377,17 +377,17 @@ export interface CutiKontrak {
 export interface CreateCutiKontrakRequest {
 	pegawai_id: number;
 	jeniscuti_id: number;
-	usulcutikontrak_tglawal: string;
-	usulcutikontrak_tglakhir: string;
-	usulcutikontrak_jumlah: number;
-	usulcutikontrak_alasan: string;
-	usulcutikontrak_alamat: string;
+	usulcuti_tglawal: string;
+	usulcuti_tglakhir: string;
+	usulcuti_jumlah: number;
+	usulcuti_alasan: string;
+	usulcuti_alamat: string;
 	atasanlangsung_id: number;
 	pejabat_id: number;
 }
 
 export interface UpdateCutiKontrakStatusRequest {
-	usulcutikontrak_status?: CutiStatus;
+	usulcuti_status?: CutiStatus;
 	atasanlangsung_status?: string;
 	pejabat_status?: string;
 }

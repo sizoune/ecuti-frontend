@@ -165,30 +165,30 @@ function CutiKontrakDetail() {
 
 	const isAdmin = user && user.role !== "Pegawai";
 	const isOwner = cuti && cuti.pegawai_id === user?.pegawai_id;
-	const canCancel = isOwner && cuti?.usulcutikontrak_status === "Verifikasi";
+	const canCancel = isOwner && cuti?.usulcuti_status === "Verifikasi";
 	const canVerify =
 		isAdmin &&
-		(cuti?.usulcutikontrak_status === "Verifikasi" ||
-			cuti?.usulcutikontrak_status === "Proses");
+		(cuti?.usulcuti_status === "Verifikasi" ||
+			cuti?.usulcuti_status === "Proses");
 
 	const handleStatusUpdate = async (status: CutiStatus) => {
 		try {
 			let payload: {
-				usulcutikontrak_status: CutiStatus;
+				usulcuti_status: CutiStatus;
 				atasanlangsung_status?: string;
 				pejabat_status?: string;
 			} = {
-				usulcutikontrak_status: status,
+				usulcuti_status: status,
 			};
 			if (status === "Terima") {
-				if (cuti?.usulcutikontrak_status === "Verifikasi") {
+				if (cuti?.usulcuti_status === "Verifikasi") {
 					payload = {
-						usulcutikontrak_status: "Proses",
+						usulcuti_status: "Proses",
 						atasanlangsung_status: "Terima",
 					};
-				} else if (cuti?.usulcutikontrak_status === "Proses") {
+				} else if (cuti?.usulcuti_status === "Proses") {
 					payload = {
-						usulcutikontrak_status: "Terima",
+						usulcuti_status: "Terima",
 						pejabat_status: "Terima",
 					};
 				}
@@ -243,7 +243,7 @@ function CutiKontrakDetail() {
 		);
 	}
 
-	const cfg = statusConfig[cuti.usulcutikontrak_status];
+	const cfg = statusConfig[cuti.usulcuti_status];
 
 	return (
 		<div className="mx-auto max-w-2xl space-y-5">
@@ -261,7 +261,7 @@ function CutiKontrakDetail() {
 						Detail Cuti Kontrak
 					</h2>
 					<p className="text-sm text-muted-foreground">
-						Pengajuan #{cuti.usulcutikontrak_id}
+						Pengajuan #{cuti.usulkontrak_id}
 					</p>
 				</div>
 			</div>
@@ -279,7 +279,7 @@ function CutiKontrakDetail() {
 						variant="secondary"
 						className={`text-sm ${cfg.badgeClassName}`}
 					>
-						{cuti.usulcutikontrak_status}
+						{cuti.usulcuti_status}
 					</Badge>
 				</div>
 			</div>
@@ -311,18 +311,18 @@ function CutiKontrakDetail() {
 							{cuti.jeniscuti_nama ?? "—"}
 						</InfoRow>
 						<InfoRow label="Tanggal Mulai">
-							{format(new Date(cuti.usulcutikontrak_tglawal), "dd MMMM yyyy", {
+							{format(new Date(cuti.usulcuti_tglawal), "dd MMMM yyyy", {
 								locale: localeId,
 							})}
 						</InfoRow>
 						<InfoRow label="Tanggal Selesai">
-							{format(new Date(cuti.usulcutikontrak_tglakhir), "dd MMMM yyyy", {
+							{format(new Date(cuti.usulcuti_tglakhir), "dd MMMM yyyy", {
 								locale: localeId,
 							})}
 						</InfoRow>
 						<InfoRow label="Jumlah Hari">
 							<span className="font-semibold">
-								{cuti.usulcutikontrak_jumlah} hari
+								{cuti.usulcuti_jumlah} hari
 							</span>
 						</InfoRow>
 					</DetailSection>
@@ -332,10 +332,10 @@ function CutiKontrakDetail() {
 					{/* Detail Cuti */}
 					<DetailSection icon={FileText} title="Detail Cuti">
 						<InfoRow label="Alasan" wide>
-							{cuti.usulcutikontrak_alasan}
+							{cuti.usulcuti_alasan}
 						</InfoRow>
 						<InfoRow label="Alamat Selama Cuti" wide>
-							{cuti.usulcutikontrak_alamat ?? "—"}
+							{cuti.usulcuti_alamat ?? "—"}
 						</InfoRow>
 					</DetailSection>
 

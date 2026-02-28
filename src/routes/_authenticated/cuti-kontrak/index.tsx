@@ -112,8 +112,8 @@ function RowActions({
 	userRole: string | undefined;
 	userPegawaiId: number | undefined;
 }) {
-	const updateMutation = useUpdateCutiKontrakStatus(item.usulcutikontrak_id);
-	const cancelMutation = useCancelCutiKontrak(item.usulcutikontrak_id);
+	const updateMutation = useUpdateCutiKontrakStatus(item.usulkontrak_id);
+	const cancelMutation = useCancelCutiKontrak(item.usulkontrak_id);
 
 	const isAdmin =
 		userRole === "Admin SKPD" ||
@@ -124,21 +124,21 @@ function RowActions({
 
 	const canAdminAct =
 		isAdmin &&
-		(item.usulcutikontrak_status === "Verifikasi" ||
-			item.usulcutikontrak_status === "Proses");
+		(item.usulcuti_status === "Verifikasi" ||
+			item.usulcuti_status === "Proses");
 
-	const canCancel = isOwner && item.usulcutikontrak_status === "Verifikasi";
+	const canCancel = isOwner && item.usulcuti_status === "Verifikasi";
 
 	function handleApprove() {
 		let payload = {};
-		if (item.usulcutikontrak_status === "Verifikasi") {
+		if (item.usulcuti_status === "Verifikasi") {
 			payload = {
-				usulcutikontrak_status: "Proses" as CutiStatus,
+				usulcuti_status: "Proses" as CutiStatus,
 				atasanlangsung_status: "Terima",
 			};
-		} else if (item.usulcutikontrak_status === "Proses") {
+		} else if (item.usulcuti_status === "Proses") {
 			payload = {
-				usulcutikontrak_status: "Terima" as CutiStatus,
+				usulcuti_status: "Terima" as CutiStatus,
 				pejabat_status: "Terima",
 			};
 		}
@@ -150,7 +150,7 @@ function RowActions({
 
 	function handleReject() {
 		updateMutation.mutate(
-			{ usulcutikontrak_status: "Ditolak" },
+			{ usulcuti_status: "Ditolak" },
 			{
 				onSuccess: () => toast.success("Pengajuan berhasil ditolak"),
 				onError: () => toast.error("Gagal menolak pengajuan"),
@@ -175,7 +175,7 @@ function RowActions({
 			>
 				<Link
 					to="/cuti-kontrak/$id"
-					params={{ id: String(item.usulcutikontrak_id) }}
+					params={{ id: String(item.usulkontrak_id) }}
 				>
 					<Eye className="h-3.5 w-3.5" />
 					Lihat
@@ -392,10 +392,10 @@ function CutiKontrakPage() {
 								<TableBody>
 									{data?.data && data.data.length > 0 ? (
 										data.data.map((item, index) => {
-											const cfg = statusConfig[item.usulcutikontrak_status];
+											const cfg = statusConfig[item.usulcuti_status];
 											return (
 												<TableRow
-													key={item.usulcutikontrak_id}
+													key={item.usulkontrak_id}
 													className="hover:bg-muted/40 transition-colors"
 												>
 													<TableCell className="text-sm text-muted-foreground">
@@ -424,7 +424,7 @@ function CutiKontrakPage() {
 													</TableCell>
 													<TableCell className="text-sm whitespace-nowrap">
 														{format(
-															new Date(item.usulcutikontrak_tglawal),
+															new Date(item.usulcuti_tglawal),
 															"d MMM yyyy",
 															{
 																locale: localeId,
@@ -432,7 +432,7 @@ function CutiKontrakPage() {
 														)}{" "}
 														–{" "}
 														{format(
-															new Date(item.usulcutikontrak_tglakhir),
+															new Date(item.usulcuti_tglakhir),
 															"d MMM yyyy",
 															{
 																locale: localeId,
@@ -444,7 +444,7 @@ function CutiKontrakPage() {
 															variant="secondary"
 															className="bg-blue-50 text-blue-700 border-blue-200"
 														>
-															{item.usulcutikontrak_jumlah} hari
+															{item.usulcuti_jumlah} hari
 														</Badge>
 													</TableCell>
 													<TableCell>
@@ -452,7 +452,7 @@ function CutiKontrakPage() {
 															variant="secondary"
 															className={cfg?.className ?? ""}
 														>
-															{cfg?.label ?? item.usulcutikontrak_status}
+															{cfg?.label ?? item.usulcuti_status}
 														</Badge>
 													</TableCell>
 													<TableCell>

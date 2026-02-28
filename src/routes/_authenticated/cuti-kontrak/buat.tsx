@@ -70,11 +70,11 @@ export const Route = createFileRoute("/_authenticated/cuti-kontrak/buat")({
 const cutiKontrakSchema = z.object({
 	pegawai_id: z.string().min(1, "Pegawai wajib dipilih"),
 	jeniscuti_id: z.string().min(1, "Jenis cuti wajib dipilih"),
-	usulcutikontrak_tglawal: z.string().min(1, "Tanggal mulai wajib diisi"),
-	usulcutikontrak_tglakhir: z.string().min(1, "Tanggal selesai wajib diisi"),
-	usulcutikontrak_jumlah: z.string(),
-	usulcutikontrak_alasan: z.string().min(1, "Alasan cuti wajib diisi"),
-	usulcutikontrak_alamat: z.string().min(1, "Alamat selama cuti wajib diisi"),
+	usulcuti_tglawal: z.string().min(1, "Tanggal mulai wajib diisi"),
+	usulcuti_tglakhir: z.string().min(1, "Tanggal selesai wajib diisi"),
+	usulcuti_jumlah: z.string(),
+	usulcuti_alasan: z.string().min(1, "Alasan cuti wajib diisi"),
+	usulcuti_alamat: z.string().min(1, "Alamat selama cuti wajib diisi"),
 	atasanlangsung_id: z.string().min(1, "Atasan langsung wajib dipilih"),
 	pejabat_id: z.string().min(1, "Pejabat wajib dipilih"),
 });
@@ -218,18 +218,18 @@ function CutiKontrakBuat() {
 		defaultValues: {
 			pegawai_id: "",
 			jeniscuti_id: "",
-			usulcutikontrak_tglawal: "",
-			usulcutikontrak_tglakhir: "",
-			usulcutikontrak_jumlah: "0",
-			usulcutikontrak_alasan: "",
-			usulcutikontrak_alamat: "",
+			usulcuti_tglawal: "",
+			usulcuti_tglakhir: "",
+			usulcuti_jumlah: "0",
+			usulcuti_alasan: "",
+			usulcuti_alamat: "",
 			atasanlangsung_id: "",
 			pejabat_id: "",
 		},
 	});
 
-	const tglAwal = form.watch("usulcutikontrak_tglawal");
-	const tglAkhir = form.watch("usulcutikontrak_tglakhir");
+	const tglAwal = form.watch("usulcuti_tglawal");
+	const tglAkhir = form.watch("usulcuti_tglakhir");
 
 	// Auto-calculate days
 	if (tglAwal && tglAkhir) {
@@ -237,8 +237,8 @@ function CutiKontrakBuat() {
 		const end = new Date(tglAkhir);
 		const diff =
 			Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-		if (diff > 0 && String(diff) !== form.getValues("usulcutikontrak_jumlah")) {
-			form.setValue("usulcutikontrak_jumlah", String(diff));
+		if (diff > 0 && String(diff) !== form.getValues("usulcuti_jumlah")) {
+			form.setValue("usulcuti_jumlah", String(diff));
 		}
 	}
 
@@ -247,11 +247,11 @@ function CutiKontrakBuat() {
 			await createCutiKontrak.mutateAsync({
 				pegawai_id: Number(values.pegawai_id),
 				jeniscuti_id: Number(values.jeniscuti_id),
-				usulcutikontrak_tglawal: values.usulcutikontrak_tglawal,
-				usulcutikontrak_tglakhir: values.usulcutikontrak_tglakhir,
-				usulcutikontrak_jumlah: Number(values.usulcutikontrak_jumlah),
-				usulcutikontrak_alasan: values.usulcutikontrak_alasan,
-				usulcutikontrak_alamat: values.usulcutikontrak_alamat,
+				usulcuti_tglawal: values.usulcuti_tglawal,
+				usulcuti_tglakhir: values.usulcuti_tglakhir,
+				usulcuti_jumlah: Number(values.usulcuti_jumlah),
+				usulcuti_alasan: values.usulcuti_alasan,
+				usulcuti_alamat: values.usulcuti_alamat,
 				atasanlangsung_id: Number(values.atasanlangsung_id),
 				pejabat_id: Number(values.pejabat_id),
 			});
@@ -354,7 +354,7 @@ function CutiKontrakBuat() {
 								<div className="grid gap-4 sm:grid-cols-2">
 									<FormField
 										control={form.control}
-										name="usulcutikontrak_tglawal"
+										name="usulcuti_tglawal"
 										render={({ field }) => (
 											<FormItem>
 												<FormLabel>Tanggal Mulai</FormLabel>
@@ -367,7 +367,7 @@ function CutiKontrakBuat() {
 									/>
 									<FormField
 										control={form.control}
-										name="usulcutikontrak_tglakhir"
+										name="usulcuti_tglakhir"
 										render={({ field }) => (
 											<FormItem>
 												<FormLabel>Tanggal Selesai</FormLabel>
@@ -381,7 +381,7 @@ function CutiKontrakBuat() {
 								</div>
 								<FormField
 									control={form.control}
-									name="usulcutikontrak_jumlah"
+									name="usulcuti_jumlah"
 									render={({ field }) => (
 										<FormItem className="max-w-[160px]">
 											<FormLabel>Jumlah Hari</FormLabel>
@@ -410,7 +410,7 @@ function CutiKontrakBuat() {
 								<SectionHeader icon={FileText} title="Detail Cuti" />
 								<FormField
 									control={form.control}
-									name="usulcutikontrak_alasan"
+									name="usulcuti_alasan"
 									render={({ field }) => (
 										<FormItem>
 											<FormLabel>Alasan Cuti</FormLabel>
@@ -427,7 +427,7 @@ function CutiKontrakBuat() {
 								/>
 								<FormField
 									control={form.control}
-									name="usulcutikontrak_alamat"
+									name="usulcuti_alamat"
 									render={({ field }) => (
 										<FormItem>
 											<FormLabel>Alamat Selama Cuti</FormLabel>
