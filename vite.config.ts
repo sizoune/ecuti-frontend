@@ -12,7 +12,7 @@ const config = defineConfig({
 		viteReact(),
 	],
 	preview: {
-		allowedHosts: ["e-cuti-dev.tabalongkab.go.id"],
+		allowedHosts: ["e-cuti-dev.tabalongkab.go.id","e-cuti.tabalongkab.go.id"],
 	},
 });
 
