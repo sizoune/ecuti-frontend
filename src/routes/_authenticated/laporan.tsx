@@ -74,7 +74,7 @@ import {
 	useLaporanDashboard,
 	useLaporanRekapitulasi,
 } from "#/hooks/use-laporan";
-import { useJenisCutiList, useSkpdList } from "#/hooks/use-master";
+import { useJenisCutiList } from "#/hooks/use-master";
 import { usePegawaiSearch } from "#/hooks/use-pegawai";
 import { useAuth } from "#/lib/auth";
 import { formatNamaGelar } from "#/lib/utils";
@@ -488,7 +488,6 @@ function CutiBulananTab({ isSuperAdmin }: { isSuperAdmin: boolean }) {
 	const [bulan, setBulan] = useState(currentMonth);
 	const [skpdId, setSkpdId] = useState<number | undefined>();
 
-	const { data: skpdList } = useSkpdList();
 	const { data, isLoading } = useLaporanCutiBulanan({
 		tahun,
 		bulan,
@@ -582,24 +581,14 @@ function CutiBulananTab({ isSuperAdmin }: { isSuperAdmin: boolean }) {
 								<label className="text-sm font-medium text-muted-foreground">
 									SKPD
 								</label>
-								<Select
-									value={skpdId ? String(skpdId) : "all"}
-									onValueChange={(v) =>
-										setSkpdId(v === "all" ? undefined : Number(v))
-									}
-								>
-									<SelectTrigger className="w-64">
-										<SelectValue placeholder="Semua SKPD" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="all">Semua SKPD</SelectItem>
-										{skpdList?.map((s) => (
-											<SelectItem key={s.skpd_id} value={String(s.skpd_id)}>
-												{s.skpd_nama}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
+							<SkpdCombobox
+								value={skpdId ? String(skpdId) : ""}
+								onChange={(v) =>
+									setSkpdId(v ? Number(v) : undefined)
+								}
+								showAll
+								className="w-64"
+							/>
 							</div>
 						)}
 						<div className="ml-auto flex items-center gap-2">
@@ -701,7 +690,6 @@ function RekapitulasiTab({ isSuperAdmin }: { isSuperAdmin: boolean }) {
 	const [tahun, setTahun] = useState(currentYear);
 	const [skpdId, setSkpdId] = useState<number | undefined>();
 
-	const { data: skpdList } = useSkpdList();
 	const { data, isLoading } = useLaporanRekapitulasi({
 		tahun,
 		skpd_id: skpdId,
@@ -774,24 +762,14 @@ function RekapitulasiTab({ isSuperAdmin }: { isSuperAdmin: boolean }) {
 								<label className="text-sm font-medium text-muted-foreground">
 									SKPD
 								</label>
-								<Select
-									value={skpdId ? String(skpdId) : "all"}
-									onValueChange={(v) =>
-										setSkpdId(v === "all" ? undefined : Number(v))
-									}
-								>
-									<SelectTrigger className="w-64">
-										<SelectValue placeholder="Semua SKPD" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="all">Semua SKPD</SelectItem>
-										{skpdList?.map((s) => (
-											<SelectItem key={s.skpd_id} value={String(s.skpd_id)}>
-												{s.skpd_nama}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
+							<SkpdCombobox
+								value={skpdId ? String(skpdId) : ""}
+								onChange={(v) =>
+									setSkpdId(v ? Number(v) : undefined)
+								}
+								showAll
+								className="w-64"
+							/>
 							</div>
 						)}
 						<div className="ml-auto flex items-center gap-2">

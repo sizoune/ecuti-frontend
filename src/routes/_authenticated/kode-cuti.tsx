@@ -23,13 +23,6 @@ import {
 } from "#/components/ui/dialog";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "#/components/ui/select";
 import { Skeleton } from "#/components/ui/skeleton";
 import {
 	Table,
@@ -45,8 +38,8 @@ import {
 	useKodeCutiList,
 	useUpdateKodeCuti,
 } from "#/hooks/use-kode-cuti";
-import { useSkpdList } from "#/hooks/use-master";
 import { useAuth } from "#/lib/auth";
+import { SkpdCombobox } from "#/components/skpd-combobox";
 import type { KodeCuti } from "#/types";
 
 export const Route = createFileRoute("/_authenticated/kode-cuti")({
@@ -84,7 +77,6 @@ function KodeCutiPage() {
 			: undefined;
 
 	const { data: kodeCutiList, isLoading } = useKodeCutiList(skpdIdParam);
-	const { data: skpdList } = useSkpdList();
 
 	return (
 		<div className="space-y-4">
@@ -101,22 +93,12 @@ function KodeCutiPage() {
 						<CardTitle className="text-base">Daftar Kode Cuti</CardTitle>
 						<div className="flex flex-wrap items-center gap-3">
 							{isSuperAdmin && (
-								<Select
-									value={filterSkpdId}
-									onValueChange={(v) => setFilterSkpdId(v)}
-								>
-									<SelectTrigger className="w-[240px]">
-										<SelectValue placeholder="Semua SKPD" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="all">Semua SKPD</SelectItem>
-										{skpdList?.map((s) => (
-											<SelectItem key={s.skpd_id} value={String(s.skpd_id)}>
-												{s.skpd_nama}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
+							<SkpdCombobox
+								value={filterSkpdId}
+								onChange={(v) => setFilterSkpdId(v)}
+								showAll
+								className="w-[240px]"
+							/>
 							)}
 							{canMutate && (
 								<Button onClick={() => setShowCreateDialog(true)}>
@@ -203,7 +185,6 @@ function KodeCutiPage() {
 					onOpenChange={setShowCreateDialog}
 					isSuperAdmin={isSuperAdmin}
 					skpdId={user?.skpd_id}
-					skpdList={skpdList ?? []}
 				/>
 			)}
 
@@ -237,7 +218,6 @@ interface CreateDialogProps {
 	onOpenChange: (open: boolean) => void;
 	isSuperAdmin: boolean;
 	skpdId?: number;
-	skpdList: Array<{ skpd_id: number; skpd_nama: string }>;
 }
 
 function CreateKodeCutiDialog({
@@ -245,7 +225,6 @@ function CreateKodeCutiDialog({
 	onOpenChange,
 	isSuperAdmin,
 	skpdId,
-	skpdList,
 }: CreateDialogProps) {
 	const [kodeAwal, setKodeAwal] = useState("");
 	const [kodeTengah, setKodeTengah] = useState("");
@@ -287,18 +266,12 @@ function CreateKodeCutiDialog({
 					{isSuperAdmin && (
 						<div className="space-y-1.5">
 							<Label htmlFor="create-skpd">SKPD</Label>
-							<Select value={selectedSkpdId} onValueChange={setSelectedSkpdId}>
-								<SelectTrigger id="create-skpd" className="w-full">
-									<SelectValue placeholder="Pilih SKPD" />
-								</SelectTrigger>
-								<SelectContent>
-									{skpdList.map((s) => (
-										<SelectItem key={s.skpd_id} value={String(s.skpd_id)}>
-											{s.skpd_nama}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
+							<SkpdCombobox
+								value={selectedSkpdId}
+								onChange={setSelectedSkpdId}
+								placeholder="Pilih SKPD"
+								className="w-full"
+							/>
 						</div>
 					)}
 					<div className="space-y-1.5">

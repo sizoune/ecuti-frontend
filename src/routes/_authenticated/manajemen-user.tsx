@@ -47,9 +47,9 @@ import {
 	useRemoveRole,
 	useUserRoleList,
 } from "#/hooks/use-manajemen-user";
-import { useSkpdList } from "#/hooks/use-master";
 import { usePegawaiSearch } from "#/hooks/use-pegawai";
 import { useAuth } from "#/lib/auth";
+import { SkpdCombobox } from "#/components/skpd-combobox";
 import type { Pegawai, UserRoleAssignment } from "#/types";
 
 export const Route = createFileRoute("/_authenticated/manajemen-user")({
@@ -103,7 +103,6 @@ function ManajemenUserPage() {
 			roleFilter && roleFilter !== "all" ? Number(roleFilter) : undefined,
 	});
 
-	const { data: skpdList } = useSkpdList();
 
 	return (
 		<div className="space-y-4">
@@ -118,25 +117,15 @@ function ManajemenUserPage() {
 				{/* Toolbar */}
 				<div className="flex flex-wrap items-center justify-between gap-3 border-b px-6 py-3">
 					<div className="flex flex-wrap items-center gap-3">
-						<Select
+						<SkpdCombobox
 							value={skpdFilter}
-							onValueChange={(v) => {
+							onChange={(v) => {
 								setSkpdFilter(v);
 								setPage(1);
 							}}
-						>
-							<SelectTrigger className="w-[240px] h-9">
-								<SelectValue placeholder="Semua SKPD" />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="all">Semua SKPD</SelectItem>
-								{skpdList?.map((s) => (
-									<SelectItem key={s.skpd_id} value={String(s.skpd_id)}>
-										{s.skpd_nama}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
+							showAll
+							className="w-[240px] h-9"
+						/>
 
 						<Select
 							value={roleFilter}
@@ -272,7 +261,6 @@ function ManajemenUserPage() {
 			<AssignRoleDialog
 				open={dialogOpen}
 				onOpenChange={setDialogOpen}
-				skpdList={skpdList ?? []}
 			/>
 		</div>
 	);
@@ -336,19 +324,12 @@ function DeleteRoleButton({ item }: { item: UserRoleAssignment }) {
 	);
 }
 
-interface Skpd {
-	skpd_id: number;
-	skpd_nama: string;
-}
-
 function AssignRoleDialog({
 	open,
 	onOpenChange,
-	skpdList,
 }: {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	skpdList: Skpd[];
 }) {
 	const [searchTerm, setSearchTerm] = useState("");
 	const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -511,18 +492,11 @@ function AssignRoleDialog({
 
 						<div className="space-y-1.5">
 							<Label htmlFor="skpd-select">SKPD</Label>
-							<Select value={skpdId} onValueChange={setSkpdId}>
-								<SelectTrigger id="skpd-select" className="w-full">
-									<SelectValue placeholder="Pilih SKPD..." />
-								</SelectTrigger>
-								<SelectContent>
-									{skpdList.map((s) => (
-										<SelectItem key={s.skpd_id} value={String(s.skpd_id)}>
-											{s.skpd_nama}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
+							<SkpdCombobox
+								value={skpdId}
+								onChange={setSkpdId}
+								className="w-full"
+							/>
 						</div>
 					</div>
 

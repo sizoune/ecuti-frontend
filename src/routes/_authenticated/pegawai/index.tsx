@@ -5,13 +5,6 @@ import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Card, CardContent } from "#/components/ui/card";
 import { Input } from "#/components/ui/input";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "#/components/ui/select";
 import { Skeleton } from "#/components/ui/skeleton";
 import {
 	Table,
@@ -21,7 +14,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "#/components/ui/table";
-import { useSkpdList } from "#/hooks/use-master";
+import { SkpdCombobox } from "#/components/skpd-combobox";
 import { usePegawaiList } from "#/hooks/use-pegawai";
 
 export const Route = createFileRoute("/_authenticated/pegawai/")({
@@ -75,9 +68,8 @@ function PegawaiListPage() {
 		page,
 		limit: 10,
 		search: search || undefined,
-		skpd_id: skpdId && skpdId !== "all" ? Number(skpdId) : undefined,
+		skpd_id: skpdId ? Number(skpdId) : undefined,
 	});
-	const { data: skpdList } = useSkpdList();
 
 	return (
 		<div className="space-y-4">
@@ -101,25 +93,15 @@ function PegawaiListPage() {
 							className="pl-9 h-9"
 						/>
 					</div>
-					<Select
+					<SkpdCombobox
 						value={skpdId}
-						onValueChange={(v) => {
+						onChange={(v) => {
 							setSkpdId(v);
 							setPage(1);
 						}}
-					>
-						<SelectTrigger className="w-[240px] h-9">
-							<SelectValue placeholder="Semua SKPD" />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value="all">Semua SKPD</SelectItem>
-							{skpdList?.map((s) => (
-								<SelectItem key={s.skpd_id} value={String(s.skpd_id)}>
-									{s.skpd_nama}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
+						showAll
+						className="w-[240px] h-9"
+					/>
 				</div>
 
 				<CardContent className="p-0">
