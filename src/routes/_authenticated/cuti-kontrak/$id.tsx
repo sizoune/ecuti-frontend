@@ -1,4 +1,9 @@
-import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
+import {
+	createFileRoute,
+	Link,
+	redirect,
+	useNavigate,
+} from "@tanstack/react-router";
 import { format } from "date-fns";
 import { id as localeId } from "date-fns/locale";
 import {
@@ -9,7 +14,6 @@ import {
 	FileText,
 	Loader2,
 	User,
-	Users,
 	XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -43,9 +47,7 @@ export const Route = createFileRoute("/_authenticated/cuti-kontrak/$id")({
 		const stored = localStorage.getItem("user");
 		if (stored) {
 			const user = JSON.parse(stored);
-			if (
-				!["Super Admin", "Admin SKPD", "Admin Uker"].includes(user.role)
-			) {
+			if (!["Super Admin", "Admin SKPD", "Admin Uker"].includes(user.role)) {
 				throw redirect({ to: "/" });
 			}
 		}
@@ -88,31 +90,6 @@ const statusConfig: Record<
 		badgeClassName: "bg-orange-100 text-orange-800 border border-orange-200",
 	},
 };
-
-function ApprovalStatusBadge({
-	status,
-}: {
-	status: string | null | undefined;
-}) {
-	if (!status) return <span className="text-sm text-muted-foreground">—</span>;
-	const isApproved = status === "Terima" || status === "Setuju";
-	const isRejected = status === "Ditolak" || status === "Tolak";
-	return (
-		<span
-			className={`inline-flex items-center gap-1 text-sm font-medium ${
-				isApproved
-					? "text-green-700"
-					: isRejected
-						? "text-red-700"
-						: "text-muted-foreground"
-			}`}
-		>
-			{isApproved && <CheckCircle2 className="h-3.5 w-3.5" />}
-			{isRejected && <XCircle className="h-3.5 w-3.5" />}
-			{status}
-		</span>
-	);
-}
 
 function DetailSection({
 	icon: Icon,
@@ -243,7 +220,11 @@ function CutiKontrakDetail() {
 		);
 	}
 
-	const cfg = statusConfig[cuti.usulcuti_status];
+	const cfg = statusConfig[cuti.usulcuti_status] ?? {
+		label: cuti.usulcuti_status,
+		className: "bg-gray-50 border-gray-200 text-gray-700",
+		badgeClassName: "bg-gray-100 text-gray-700 border border-gray-200",
+	};
 
 	return (
 		<div className="mx-auto max-w-2xl space-y-5">
@@ -321,9 +302,7 @@ function CutiKontrakDetail() {
 							})}
 						</InfoRow>
 						<InfoRow label="Jumlah Hari">
-							<span className="font-semibold">
-								{cuti.usulcuti_jumlah} hari
-							</span>
+							<span className="font-semibold">{cuti.usulcuti_jumlah} hari</span>
 						</InfoRow>
 					</DetailSection>
 
@@ -336,24 +315,6 @@ function CutiKontrakDetail() {
 						</InfoRow>
 						<InfoRow label="Alamat Selama Cuti" wide>
 							{cuti.usulcuti_alamat ?? "—"}
-						</InfoRow>
-					</DetailSection>
-
-					<Separator />
-
-					{/* Persetujuan */}
-					<DetailSection icon={Users} title="Persetujuan">
-						<InfoRow label="Atasan Langsung">
-							{cuti.atasanlangsung_nama ?? "—"}
-						</InfoRow>
-						<InfoRow label="Status Atasan">
-							<ApprovalStatusBadge status={cuti.atasanlangsung_status} />
-						</InfoRow>
-						<InfoRow label="Pejabat Berwenang">
-							{cuti.pejabat_nama ?? "—"}
-						</InfoRow>
-						<InfoRow label="Status Pejabat">
-							<ApprovalStatusBadge status={cuti.pejabat_status} />
 						</InfoRow>
 					</DetailSection>
 

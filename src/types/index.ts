@@ -358,8 +358,6 @@ export interface CutiKontrak {
 	atasanlangsung_status: string | null;
 	pejabat_id: number | null;
 	pejabat_status: string | null;
-	skpd_id: number;
-	subunit_id: number;
 	created_at: string;
 	updated_at?: string;
 	// Joined fields
@@ -367,10 +365,9 @@ export interface CutiKontrak {
 	pegawai_nip?: string;
 	pegawai_gelardepan?: string | null;
 	pegawai_gelarbelakang?: string | null;
+	skpd_id?: number;
 	jeniscuti_nama?: string;
 	skpd_nama?: string;
-	atasanlangsung_nama?: string;
-	pejabat_nama?: string;
 }
 
 export interface CreateCutiKontrakRequest {
@@ -378,11 +375,8 @@ export interface CreateCutiKontrakRequest {
 	jeniscuti_id: number;
 	usulcuti_tglawal: string;
 	usulcuti_tglakhir: string;
-	usulcuti_jumlah: number;
 	usulcuti_alasan: string;
 	usulcuti_alamat: string;
-	atasanlangsung_id: number;
-	pejabat_id: number;
 }
 
 export interface UpdateCutiKontrakStatusRequest {

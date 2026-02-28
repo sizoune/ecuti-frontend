@@ -8,7 +8,6 @@ import {
 	FileText,
 	Loader2,
 	User,
-	Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -57,9 +56,7 @@ export const Route = createFileRoute("/_authenticated/cuti-kontrak/buat")({
 		const stored = localStorage.getItem("user");
 		if (stored) {
 			const user = JSON.parse(stored);
-			if (
-				!["Super Admin", "Admin SKPD", "Admin Uker"].includes(user.role)
-			) {
+			if (!["Super Admin", "Admin SKPD", "Admin Uker"].includes(user.role)) {
 				throw redirect({ to: "/" });
 			}
 		}
@@ -72,11 +69,8 @@ const cutiKontrakSchema = z.object({
 	jeniscuti_id: z.string().min(1, "Jenis cuti wajib dipilih"),
 	usulcuti_tglawal: z.string().min(1, "Tanggal mulai wajib diisi"),
 	usulcuti_tglakhir: z.string().min(1, "Tanggal selesai wajib diisi"),
-	usulcuti_jumlah: z.string(),
 	usulcuti_alasan: z.string().min(1, "Alasan cuti wajib diisi"),
 	usulcuti_alamat: z.string().min(1, "Alamat selama cuti wajib diisi"),
-	atasanlangsung_id: z.string().min(1, "Atasan langsung wajib dipilih"),
-	pejabat_id: z.string().min(1, "Pejabat wajib dipilih"),
 });
 
 type CutiKontrakForm = z.infer<typeof cutiKontrakSchema>;
@@ -220,27 +214,10 @@ function CutiKontrakBuat() {
 			jeniscuti_id: "",
 			usulcuti_tglawal: "",
 			usulcuti_tglakhir: "",
-			usulcuti_jumlah: "0",
 			usulcuti_alasan: "",
 			usulcuti_alamat: "",
-			atasanlangsung_id: "",
-			pejabat_id: "",
 		},
 	});
-
-	const tglAwal = form.watch("usulcuti_tglawal");
-	const tglAkhir = form.watch("usulcuti_tglakhir");
-
-	// Auto-calculate days
-	if (tglAwal && tglAkhir) {
-		const start = new Date(tglAwal);
-		const end = new Date(tglAkhir);
-		const diff =
-			Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-		if (diff > 0 && String(diff) !== form.getValues("usulcuti_jumlah")) {
-			form.setValue("usulcuti_jumlah", String(diff));
-		}
-	}
 
 	const onSubmit = async (values: CutiKontrakForm) => {
 		try {
@@ -249,11 +226,8 @@ function CutiKontrakBuat() {
 				jeniscuti_id: Number(values.jeniscuti_id),
 				usulcuti_tglawal: values.usulcuti_tglawal,
 				usulcuti_tglakhir: values.usulcuti_tglakhir,
-				usulcuti_jumlah: Number(values.usulcuti_jumlah),
 				usulcuti_alasan: values.usulcuti_alasan,
 				usulcuti_alamat: values.usulcuti_alamat,
-				atasanlangsung_id: Number(values.atasanlangsung_id),
-				pejabat_id: Number(values.pejabat_id),
 			});
 			toast.success("Pengajuan cuti kontrak berhasil dibuat");
 			navigate({ to: "/cuti-kontrak" });
@@ -372,37 +346,13 @@ function CutiKontrakBuat() {
 											<FormItem>
 												<FormLabel>Tanggal Selesai</FormLabel>
 												<FormControl>
-													<Input type="date" min={tglAwal} {...field} />
+													<Input type="date" {...field} />
 												</FormControl>
 												<FormMessage />
 											</FormItem>
 										)}
 									/>
 								</div>
-								<FormField
-									control={form.control}
-									name="usulcuti_jumlah"
-									render={({ field }) => (
-										<FormItem className="max-w-[160px]">
-											<FormLabel>Jumlah Hari</FormLabel>
-											<FormControl>
-												<div className="relative">
-													<Input
-														type="number"
-														min={1}
-														readOnly
-														{...field}
-														className="pr-12 bg-muted/50 text-center font-medium"
-													/>
-													<span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-muted-foreground">
-														hari
-													</span>
-												</div>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
 							</div>
 
 							{/* Section 4: Detail */}
@@ -435,45 +385,6 @@ function CutiKontrakBuat() {
 												<Input
 													placeholder="Alamat lengkap selama cuti berlangsung"
 													{...field}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-							</div>
-
-							{/* Section 5: Persetujuan */}
-							<div className="space-y-4">
-								<SectionHeader icon={Users} title="Pejabat Persetujuan" />
-								<FormField
-									control={form.control}
-									name="atasanlangsung_id"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Atasan Langsung</FormLabel>
-											<FormControl>
-												<PegawaiCombobox
-													value={field.value}
-													onChange={field.onChange}
-													placeholder="Cari dan pilih atasan langsung"
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="pejabat_id"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Pejabat Yang Berwenang</FormLabel>
-											<FormControl>
-												<PegawaiCombobox
-													value={field.value}
-													onChange={field.onChange}
-													placeholder="Cari dan pilih pejabat berwenang"
 												/>
 											</FormControl>
 											<FormMessage />
