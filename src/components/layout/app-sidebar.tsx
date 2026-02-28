@@ -11,12 +11,15 @@ import {
   UserCog,
   CalendarCheck,
   FileSignature,
+  LogOut,
 } from 'lucide-react'
+import { useNavigate } from '@tanstack/react-router'
 import { useAuth } from '#/lib/auth'
 import type { UserRole } from '#/types'
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -35,6 +38,8 @@ import {
   CollapsibleTrigger,
 } from '#/components/ui/collapsible'
 import { ChevronRight } from 'lucide-react'
+import { Avatar, AvatarFallback } from '#/components/ui/avatar'
+import { Badge } from '#/components/ui/badge'
 
 interface NavItem {
   title: string
@@ -119,13 +124,33 @@ const navItems: NavItem[] = [
   },
 ]
 
+const roleVariant: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+  'Super Admin': 'destructive',
+  'Admin SKPD': 'default',
+  'Admin Uker': 'default',
+  Pegawai: 'secondary',
+}
+
 export function AppSidebar() {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
   const routerState = useRouterState()
   const currentPath = routerState.location.pathname
   const role = user?.role
 
   const visibleItems = navItems.filter((item) => role && item.roles.includes(role))
+
+  const initials = user?.pegawai_nama
+    ?.split(' ')
+    .slice(0, 2)
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase() ?? '?'
+
+  const handleLogout = async () => {
+    await logout()
+    navigate({ to: '/login' })
+  }
 
   return (
     <Sidebar>
@@ -176,6 +201,37 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
+      <SidebarFooter className="border-t p-3">
+        <div className="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-sidebar-accent transition-colors">
+          <Avatar className="h-8 w-8 shrink-0 border-2 border-primary/20">
+            <AvatarFallback className="text-xs font-semibold bg-primary/10 text-primary">
+              {initials}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex min-w-0 flex-col">
+            <span className="truncate text-xs font-semibold">
+              {user?.pegawai_nama}
+            </span>
+            {role && (
+              <Badge
+                variant={roleVariant[role] ?? 'secondary'}
+                className="mt-0.5 w-fit text-[10px] px-1.5 py-0"
+              >
+                {role}
+              </Badge>
+            )}
+          </div>
+          <button
+            onClick={handleLogout}
+            className="ml-auto shrink-0 text-muted-foreground hover:text-destructive transition-colors"
+            title="Keluar"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
+        </div>
+      </SidebarFooter>
+
       <SidebarRail />
     </Sidebar>
   )

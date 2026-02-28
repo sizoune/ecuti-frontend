@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { createFileRoute, redirect } from '@tanstack/react-router'
-import { Plus, Trash2, Search } from 'lucide-react'
+import { Plus, Trash2, Search, Users } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAuth } from '#/lib/auth'
 import {
@@ -10,7 +10,7 @@ import {
 } from '#/hooks/use-manajemen-user'
 import { useSkpdList } from '#/hooks/use-master'
 import { usePegawaiSearch } from '#/hooks/use-pegawai'
-import { Card, CardContent, CardHeader } from '#/components/ui/card'
+import { Card, CardContent } from '#/components/ui/card'
 import {
   Table,
   TableBody,
@@ -74,11 +74,11 @@ const ROLE_LABELS: Record<number, string> = {
   4: 'Pegawai',
 }
 
-const ROLE_VARIANTS: Record<number, 'default' | 'secondary' | 'outline' | 'destructive'> = {
-  1: 'destructive',
-  2: 'default',
-  3: 'secondary',
-  4: 'outline',
+const ROLE_BADGE_CLASS: Record<number, string> = {
+  1: 'bg-red-100 text-red-800 border-red-200',
+  2: 'bg-blue-100 text-blue-800 border-blue-200',
+  3: 'bg-purple-100 text-purple-800 border-purple-200',
+  4: 'bg-gray-100 text-gray-700 border-gray-200',
 }
 
 function ManajemenUserPage() {
@@ -102,57 +102,56 @@ function ManajemenUserPage() {
     <div className="space-y-4">
       <div>
         <h2 className="text-2xl font-bold tracking-tight">Manajemen User</h2>
-        <p className="text-muted-foreground">Kelola peran pengguna sistem</p>
+        <p className="text-muted-foreground">Kelola peran pengguna sistem e-Cuti</p>
       </div>
 
       <Card>
-        <CardHeader className="pb-3">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap items-center gap-3">
-              <Select
-                value={skpdFilter}
-                onValueChange={(v) => { setSkpdFilter(v); setPage(1) }}
-              >
-                <SelectTrigger className="w-[240px]">
-                  <SelectValue placeholder="Semua SKPD" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Semua SKPD</SelectItem>
-                  {skpdList?.map((s) => (
-                    <SelectItem key={s.skpd_id} value={String(s.skpd_id)}>
-                      {s.skpd_nama}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+        {/* Toolbar */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b px-6 py-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <Select
+              value={skpdFilter}
+              onValueChange={(v) => { setSkpdFilter(v); setPage(1) }}
+            >
+              <SelectTrigger className="w-[240px] h-9">
+                <SelectValue placeholder="Semua SKPD" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Semua SKPD</SelectItem>
+                {skpdList?.map((s) => (
+                  <SelectItem key={s.skpd_id} value={String(s.skpd_id)}>
+                    {s.skpd_nama}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-              <Select
-                value={roleFilter}
-                onValueChange={(v) => { setRoleFilter(v); setPage(1) }}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Semua Role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Semua Role</SelectItem>
-                  <SelectItem value="1">Super Admin</SelectItem>
-                  <SelectItem value="2">Admin SKPD</SelectItem>
-                  <SelectItem value="3">Admin Uker</SelectItem>
-                  <SelectItem value="4">Pegawai</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <Button size="sm" onClick={() => setDialogOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Tambah Role
-            </Button>
+            <Select
+              value={roleFilter}
+              onValueChange={(v) => { setRoleFilter(v); setPage(1) }}
+            >
+              <SelectTrigger className="w-[180px] h-9">
+                <SelectValue placeholder="Semua Role" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Semua Role</SelectItem>
+                <SelectItem value="1">Super Admin</SelectItem>
+                <SelectItem value="2">Admin SKPD</SelectItem>
+                <SelectItem value="3">Admin Uker</SelectItem>
+                <SelectItem value="4">Pegawai</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-        </CardHeader>
 
-        <CardContent>
+          <Button size="sm" onClick={() => setDialogOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Tambah Role
+          </Button>
+        </div>
+
+        <CardContent className="p-0">
           {isLoading ? (
-            <div className="space-y-3">
+            <div className="space-y-3 p-6">
               {Array.from({ length: 5 }).map((_, i) => (
                 <Skeleton key={i} className="h-12 w-full" />
               ))}
@@ -161,7 +160,7 @@ function ManajemenUserPage() {
             <>
               <Table>
                 <TableHeader>
-                  <TableRow>
+                  <TableRow className="hover:bg-transparent">
                     <TableHead className="w-12">No</TableHead>
                     <TableHead>Nama Pegawai</TableHead>
                     <TableHead>NIP</TableHead>
@@ -172,16 +171,19 @@ function ManajemenUserPage() {
                 <TableBody>
                   {data?.data && data.data.length > 0 ? (
                     data.data.map((item, idx) => (
-                      <TableRow key={`${item.pegawai_id}-${item.role_id}`}>
-                        <TableCell>{(page - 1) * LIMIT + idx + 1}</TableCell>
+                      <TableRow key={`${item.pegawai_id}-${item.role_id}`} className="hover:bg-muted/40 transition-colors">
+                        <TableCell className="text-muted-foreground">{(page - 1) * LIMIT + idx + 1}</TableCell>
                         <TableCell className="font-medium">
                           {item.pegawai_nama ?? '-'}
                         </TableCell>
-                        <TableCell className="font-mono text-sm">
+                        <TableCell className="font-mono text-sm text-muted-foreground">
                           {item.pegawai_nip ?? '-'}
                         </TableCell>
                         <TableCell>
-                          <Badge variant={ROLE_VARIANTS[item.role_id] ?? 'outline'}>
+                          <Badge
+                            variant="secondary"
+                            className={ROLE_BADGE_CLASS[item.role_id] ?? 'bg-gray-100 text-gray-700'}
+                          >
                             {item.role_nama ?? ROLE_LABELS[item.role_id] ?? `Role ${item.role_id}`}
                           </Badge>
                         </TableCell>
@@ -192,11 +194,14 @@ function ManajemenUserPage() {
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell
-                        colSpan={5}
-                        className="py-8 text-center text-muted-foreground"
-                      >
-                        Tidak ada data penugasan role
+                      <TableCell colSpan={5} className="py-16 text-center">
+                        <div className="flex flex-col items-center gap-3 text-muted-foreground">
+                          <Users className="h-10 w-10 opacity-30" />
+                          <div>
+                            <p className="font-medium text-sm">Belum ada penugasan role</p>
+                            <p className="text-xs mt-1">Tambahkan role kepada pegawai menggunakan tombol di atas.</p>
+                          </div>
+                        </div>
                       </TableCell>
                     </TableRow>
                   )}
@@ -204,7 +209,7 @@ function ManajemenUserPage() {
               </Table>
 
               {data && data.total > LIMIT && (
-                <div className="mt-4 flex items-center justify-between">
+                <div className="flex items-center justify-between border-t px-6 py-3">
                   <p className="text-sm text-muted-foreground">
                     {(page - 1) * LIMIT + 1}–{Math.min(page * LIMIT, data.total)} dari{' '}
                     {data.total}
@@ -265,7 +270,12 @@ function DeleteRoleButton({ item }: { item: UserRoleAssignment }) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="ghost" size="icon" disabled={isPending}>
+        <Button
+          variant="ghost"
+          size="icon"
+          disabled={isPending}
+          className="hover:bg-red-50 hover:text-red-600"
+        >
           <Trash2 className="h-4 w-4 text-destructive" />
         </Button>
       </AlertDialogTrigger>
@@ -280,7 +290,12 @@ function DeleteRoleButton({ item }: { item: UserRoleAssignment }) {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Batal</AlertDialogCancel>
-          <AlertDialogAction onClick={handleDelete}>Hapus</AlertDialogAction>
+          <AlertDialogAction
+            onClick={handleDelete}
+            className="bg-destructive hover:bg-destructive/90"
+          >
+            Hapus
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
@@ -381,9 +396,9 @@ function AssignRoleDialog({
     >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Tambah Role</DialogTitle>
+          <DialogTitle>Tambah Role Pengguna</DialogTitle>
           <DialogDescription>
-            Tetapkan role kepada pegawai yang dipilih.
+            Cari pegawai lalu tetapkan role dan SKPD yang sesuai.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>

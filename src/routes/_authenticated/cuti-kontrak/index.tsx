@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { format } from 'date-fns'
 import { id as localeId } from 'date-fns/locale'
 import { toast } from 'sonner'
-import { Plus, Check, X, Ban } from 'lucide-react'
+import { Plus, Check, X, Ban, FileText } from 'lucide-react'
 import {
   useCutiKontrakList,
   useUpdateCutiKontrakStatus,
@@ -13,7 +13,7 @@ import { useAuth } from '#/lib/auth'
 import type { CutiKontrak, CutiStatus } from '#/types'
 import { Button } from '#/components/ui/button'
 import { Badge } from '#/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '#/components/ui/card'
+import { Card, CardContent } from '#/components/ui/card'
 import {
   Table,
   TableBody,
@@ -51,25 +51,13 @@ const STATUS_LIST: CutiStatus[] = ['Verifikasi', 'Proses', 'Terima', 'Ditolak', 
 const currentYear = new Date().getFullYear()
 const YEAR_OPTIONS = [currentYear - 2, currentYear - 1, currentYear, currentYear + 1, currentYear + 2]
 
-function getStatusBadgeVariant(status: CutiStatus) {
-  switch (status) {
-    case 'Verifikasi':
-      return 'outline' as const
-    case 'Proses':
-      return 'default' as const
-    case 'Terima':
-      return 'default' as const
-    case 'Ditolak':
-      return 'destructive' as const
-    case 'Batal':
-    case 'BTL':
-      return 'secondary' as const
-  }
-}
-
-function getStatusBadgeClassName(status: CutiStatus) {
-  if (status === 'Terima') return 'bg-green-600 hover:bg-green-700 text-white'
-  return ''
+const statusConfig: Record<CutiStatus, { className: string; label: string }> = {
+  Verifikasi: { className: 'bg-amber-100 text-amber-800 border-amber-200', label: 'Menunggu' },
+  Proses: { className: 'bg-blue-100 text-blue-800 border-blue-200', label: 'Proses' },
+  Terima: { className: 'bg-green-100 text-green-800 border-green-200', label: 'Disetujui' },
+  Ditolak: { className: 'bg-red-100 text-red-800 border-red-200', label: 'Ditolak' },
+  Batal: { className: 'bg-gray-100 text-gray-700 border-gray-200', label: 'Batal' },
+  BTL: { className: 'bg-orange-100 text-orange-800 border-orange-200', label: 'BTL' },
 }
 
 // Row-level action component so each row has its own mutation hook instance
@@ -137,10 +125,10 @@ function RowActions({
               <Button
                 variant="outline"
                 size="sm"
-                className="h-7 px-2 text-green-600 border-green-300 hover:bg-green-50"
+                className="h-8 gap-1.5 border-green-300 text-green-700 hover:bg-green-50 hover:text-green-800"
                 disabled={updateMutation.isPending}
               >
-                <Check className="h-3 w-3 mr-1" />
+                <Check className="h-3.5 w-3.5" />
                 Setujui
               </Button>
             </AlertDialogTrigger>
@@ -153,7 +141,12 @@ function RowActions({
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Batal</AlertDialogCancel>
-                <AlertDialogAction onClick={handleApprove}>Setujui</AlertDialogAction>
+                <AlertDialogAction
+                  onClick={handleApprove}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  Ya, Setujui
+                </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
@@ -163,10 +156,10 @@ function RowActions({
               <Button
                 variant="outline"
                 size="sm"
-                className="h-7 px-2 text-red-600 border-red-300 hover:bg-red-50"
+                className="h-8 gap-1.5 border-red-300 text-red-700 hover:bg-red-50 hover:text-red-800"
                 disabled={updateMutation.isPending}
               >
-                <X className="h-3 w-3 mr-1" />
+                <X className="h-3.5 w-3.5" />
                 Tolak
               </Button>
             </AlertDialogTrigger>
@@ -174,7 +167,7 @@ function RowActions({
               <AlertDialogHeader>
                 <AlertDialogTitle>Tolak Pengajuan</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Apakah Anda yakin ingin menolak pengajuan cuti kontrak ini?
+                  Apakah Anda yakin ingin menolak pengajuan cuti kontrak ini? Tindakan ini tidak dapat dibatalkan.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -183,7 +176,7 @@ function RowActions({
                   onClick={handleReject}
                   className="bg-destructive hover:bg-destructive/90"
                 >
-                  Tolak
+                  Ya, Tolak
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -197,10 +190,10 @@ function RowActions({
             <Button
               variant="outline"
               size="sm"
-              className="h-7 px-2 text-gray-600 border-gray-300 hover:bg-gray-50"
+              className="h-8 gap-1.5 text-gray-600 border-gray-300 hover:bg-gray-50"
               disabled={cancelMutation.isPending}
             >
-              <Ban className="h-3 w-3 mr-1" />
+              <Ban className="h-3.5 w-3.5" />
               Batalkan
             </Button>
           </AlertDialogTrigger>
@@ -256,115 +249,135 @@ function CutiKontrakPage() {
       </div>
 
       <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-center gap-3 flex-wrap">
-            <CardTitle className="text-base">Filter</CardTitle>
-            <Select value={status} onValueChange={(v) => { setStatus(v); setPage(1) }}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Semua Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Semua Status</SelectItem>
-                {STATUS_LIST.map((s) => (
-                  <SelectItem key={s} value={s}>
-                    {s}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={tahun} onValueChange={(v) => { setTahun(v); setPage(1) }}>
-              <SelectTrigger className="w-[140px]">
-                <SelectValue placeholder="Tahun" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Semua Tahun</SelectItem>
-                {YEAR_OPTIONS.map((y) => (
-                  <SelectItem key={y} value={String(y)}>
-                    {y}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </CardHeader>
-        <CardContent>
+        {/* Clean toolbar — no CardTitle "Filter" label */}
+        <div className="flex items-center gap-3 flex-wrap border-b px-6 py-3">
+          <Select value={status} onValueChange={(v) => { setStatus(v); setPage(1) }}>
+            <SelectTrigger className="w-[180px] h-9">
+              <SelectValue placeholder="Semua Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Semua Status</SelectItem>
+              {STATUS_LIST.map((s) => (
+                <SelectItem key={s} value={s}>
+                  {statusConfig[s]?.label ?? s}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={tahun} onValueChange={(v) => { setTahun(v); setPage(1) }}>
+            <SelectTrigger className="w-[140px] h-9">
+              <SelectValue placeholder="Tahun" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Semua Tahun</SelectItem>
+              {YEAR_OPTIONS.map((y) => (
+                <SelectItem key={y} value={String(y)}>
+                  {y}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <CardContent className="p-0">
           {isLoading ? (
-            <div className="space-y-3">
+            <div className="space-y-3 p-6">
               {Array.from({ length: 5 }).map((_, i) => (
                 <Skeleton key={i} className="h-12 w-full" />
               ))}
             </div>
           ) : isError ? (
-            <div className="py-8 text-center text-muted-foreground">
-              Gagal memuat data. Silakan coba lagi nanti.
+            <div className="py-16 text-center">
+              <div className="flex flex-col items-center gap-3 text-muted-foreground">
+                <FileText className="h-10 w-10 opacity-30" />
+                <div>
+                  <p className="font-medium text-sm">Gagal memuat data</p>
+                  <p className="text-xs mt-1">Silakan coba lagi nanti.</p>
+                </div>
+              </div>
             </div>
           ) : (
             <>
               <Table>
                 <TableHeader>
-                  <TableRow>
+                  <TableRow className="hover:bg-transparent">
                     <TableHead className="w-12">No</TableHead>
                     <TableHead>Nama Pegawai</TableHead>
                     <TableHead>Jenis Cuti</TableHead>
                     <TableHead>Tanggal</TableHead>
-                    <TableHead className="text-center">Jumlah Hari</TableHead>
+                    <TableHead className="text-center">Hari</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Aksi</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {data?.data && data.data.length > 0 ? (
-                    data.data.map((item, index) => (
-                      <TableRow key={item.usulcutikontrak_id}>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {(page - 1) * 10 + index + 1}
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">
-                              {[item.pegawai_gelardepan, item.pegawai_nama, item.pegawai_gelarbelakang]
-                                .filter(Boolean)
-                                .join(' ')}
+                    data.data.map((item, index) => {
+                      const cfg = statusConfig[item.usulcutikontrak_status]
+                      return (
+                        <TableRow key={item.usulcutikontrak_id} className="hover:bg-muted/40 transition-colors">
+                          <TableCell className="text-sm text-muted-foreground">
+                            {(page - 1) * 10 + index + 1}
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              <div className="font-medium">
+                                {[item.pegawai_gelardepan, item.pegawai_nama, item.pegawai_gelarbelakang]
+                                  .filter(Boolean)
+                                  .join(' ')}
+                              </div>
+                              {item.pegawai_nip && (
+                                <div className="text-xs text-muted-foreground font-mono">{item.pegawai_nip}</div>
+                              )}
                             </div>
-                            {item.pegawai_nip && (
-                              <div className="text-xs text-muted-foreground">{item.pegawai_nip}</div>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>{item.jeniscuti_nama ?? '-'}</TableCell>
-                        <TableCell className="text-sm whitespace-nowrap">
-                          {format(new Date(item.usulcutikontrak_tglawal), 'd MMM yyyy', {
-                            locale: localeId,
-                          })}{' '}
-                          -{' '}
-                          {format(new Date(item.usulcutikontrak_tglakhir), 'd MMM yyyy', {
-                            locale: localeId,
-                          })}
-                        </TableCell>
-                        <TableCell className="text-center">
-                          {item.usulcutikontrak_jumlah} hari
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={getStatusBadgeVariant(item.usulcutikontrak_status)}
-                            className={getStatusBadgeClassName(item.usulcutikontrak_status)}
-                          >
-                            {item.usulcutikontrak_status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <RowActions
-                            item={item}
-                            userRole={user?.role}
-                            userPegawaiId={user?.pegawai_id}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    ))
+                          </TableCell>
+                          <TableCell className="text-sm">{item.jeniscuti_nama ?? '-'}</TableCell>
+                          <TableCell className="text-sm whitespace-nowrap">
+                            {format(new Date(item.usulcutikontrak_tglawal), 'd MMM yyyy', {
+                              locale: localeId,
+                            })}{' '}
+                            –{' '}
+                            {format(new Date(item.usulcutikontrak_tglakhir), 'd MMM yyyy', {
+                              locale: localeId,
+                            })}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200">
+                              {item.usulcutikontrak_jumlah} hari
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              variant="secondary"
+                              className={cfg?.className ?? ''}
+                            >
+                              {cfg?.label ?? item.usulcutikontrak_status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <RowActions
+                              item={item}
+                              userRole={user?.role}
+                              userPegawaiId={user?.pegawai_id}
+                            />
+                          </TableCell>
+                        </TableRow>
+                      )
+                    })
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
-                        Belum ada data pengajuan cuti kontrak
+                      <TableCell colSpan={7} className="py-16 text-center">
+                        <div className="flex flex-col items-center gap-3 text-muted-foreground">
+                          <FileText className="h-10 w-10 opacity-30" />
+                          <div>
+                            <p className="font-medium text-sm">Belum ada pengajuan cuti kontrak</p>
+                            <p className="text-xs mt-1">
+                              {isPegawai
+                                ? 'Klik "Ajukan Cuti" untuk membuat pengajuan baru.'
+                                : 'Belum ada data pengajuan cuti kontrak untuk filter yang dipilih.'}
+                            </p>
+                          </div>
+                        </div>
                       </TableCell>
                     </TableRow>
                   )}
@@ -372,7 +385,7 @@ function CutiKontrakPage() {
               </Table>
 
               {data && data.total > 10 && (
-                <div className="mt-4 flex items-center justify-between">
+                <div className="flex items-center justify-between border-t px-6 py-3">
                   <p className="text-sm text-muted-foreground">
                     Menampilkan {(page - 1) * 10 + 1}–{Math.min(page * 10, data.total)} dari{' '}
                     {data.total} data

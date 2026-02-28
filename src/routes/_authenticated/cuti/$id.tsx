@@ -2,7 +2,18 @@ import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { format } from 'date-fns'
 import { id as localeId } from 'date-fns/locale'
 import { toast } from 'sonner'
-import { ArrowLeft, Loader2 } from 'lucide-react'
+import {
+  ArrowLeft,
+  Building2,
+  CalendarDays,
+  CheckCircle2,
+  FileText,
+  Loader2,
+  MapPin,
+  User,
+  Users,
+  XCircle,
+} from 'lucide-react'
 import { useCutiDetail, useUpdateCutiStatus, useCancelCuti } from '#/hooks/use-cuti'
 import { useAuth } from '#/lib/auth'
 import { formatNamaGelar } from '#/lib/utils'
@@ -28,13 +39,99 @@ export const Route = createFileRoute('/_authenticated/cuti/$id')({
   component: CutiDetailPage,
 })
 
-const statusColors: Record<CutiStatus, string> = {
-  Verifikasi: 'bg-yellow-100 text-yellow-800',
-  Proses: 'bg-blue-100 text-blue-800',
-  Terima: 'bg-green-100 text-green-800',
-  Ditolak: 'bg-red-100 text-red-800',
-  Batal: 'bg-gray-100 text-gray-800',
-  BTL: 'bg-orange-100 text-orange-800',
+const statusConfig: Record<CutiStatus, { label: string; className: string; badgeClassName: string }> = {
+  Verifikasi: {
+    label: 'Menunggu Verifikasi',
+    className: 'bg-yellow-50 border-yellow-200 text-yellow-800',
+    badgeClassName: 'bg-yellow-100 text-yellow-800 border border-yellow-200',
+  },
+  Proses: {
+    label: 'Sedang Diproses',
+    className: 'bg-blue-50 border-blue-200 text-blue-800',
+    badgeClassName: 'bg-blue-100 text-blue-800 border border-blue-200',
+  },
+  Terima: {
+    label: 'Disetujui',
+    className: 'bg-green-50 border-green-200 text-green-800',
+    badgeClassName: 'bg-green-100 text-green-800 border border-green-200',
+  },
+  Ditolak: {
+    label: 'Ditolak',
+    className: 'bg-red-50 border-red-200 text-red-800',
+    badgeClassName: 'bg-red-100 text-red-800 border border-red-200',
+  },
+  Batal: {
+    label: 'Dibatalkan',
+    className: 'bg-gray-50 border-gray-200 text-gray-700',
+    badgeClassName: 'bg-gray-100 text-gray-700 border border-gray-200',
+  },
+  BTL: {
+    label: 'BTL',
+    className: 'bg-orange-50 border-orange-200 text-orange-800',
+    badgeClassName: 'bg-orange-100 text-orange-800 border border-orange-200',
+  },
+}
+
+function ApprovalStatusBadge({ status }: { status: string | null | undefined }) {
+  if (!status) return <span className="text-sm text-muted-foreground">—</span>
+  const isApproved = status === 'Terima' || status === 'Setuju'
+  const isRejected = status === 'Ditolak' || status === 'Tolak'
+  return (
+    <span
+      className={`inline-flex items-center gap-1 text-sm font-medium ${
+        isApproved
+          ? 'text-green-700'
+          : isRejected
+            ? 'text-red-700'
+            : 'text-muted-foreground'
+      }`}
+    >
+      {isApproved && <CheckCircle2 className="h-3.5 w-3.5" />}
+      {isRejected && <XCircle className="h-3.5 w-3.5" />}
+      {status}
+    </span>
+  )
+}
+
+function DetailSection({
+  icon: Icon,
+  title,
+  children,
+}: {
+  icon: React.ComponentType<{ className?: string }>
+  title: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-2">
+        <div className="flex h-6 w-6 items-center justify-center rounded-md bg-muted">
+          <Icon className="h-3.5 w-3.5 text-muted-foreground" />
+        </div>
+        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          {title}
+        </span>
+      </div>
+      <div className="grid gap-2.5 pl-8 sm:grid-cols-2">{children}</div>
+    </div>
+  )
+}
+
+function InfoRow({
+  label,
+  children,
+  wide,
+}: {
+  label: string
+  children: React.ReactNode
+  wide?: boolean
+}) {
+  return (
+    <div className={wide ? 'sm:col-span-2' : undefined}>
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <div className="mt-0.5 text-sm font-medium">{children}</div>
+    </div>
+  )
 }
 
 function CutiDetailPage() {
@@ -53,7 +150,13 @@ function CutiDetailPage() {
   const handleStatusUpdate = async (status: CutiStatus) => {
     try {
       await updateStatus.mutateAsync({ usulcuti_status: status })
-      toast.success(`Cuti berhasil ${status === 'Terima' ? 'disetujui' : status === 'Ditolak' ? 'ditolak' : 'diperbarui'}`)
+      toast.success(
+        status === 'Terima'
+          ? 'Cuti berhasil disetujui'
+          : status === 'Ditolak'
+            ? 'Cuti berhasil ditolak'
+            : 'Status cuti berhasil diperbarui',
+      )
     } catch {
       toast.error('Gagal memperbarui status cuti')
     }
@@ -72,126 +175,188 @@ function CutiDetailPage() {
     return (
       <div className="mx-auto max-w-2xl space-y-4">
         <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-[400px]" />
+        <Skeleton className="h-[500px]" />
       </div>
     )
   }
 
   if (!cuti) {
     return (
-      <div className="py-12 text-center">
-        <p className="text-muted-foreground">Data cuti tidak ditemukan</p>
-        <Button variant="outline" className="mt-4" asChild>
-          <Link to="/cuti">Kembali</Link>
+      <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
+        <FileText className="h-12 w-12 text-muted-foreground/40" />
+        <div>
+          <p className="font-medium text-muted-foreground">Data tidak ditemukan</p>
+          <p className="mt-1 text-sm text-muted-foreground/70">
+            Pengajuan cuti ini tidak ada atau sudah dihapus.
+          </p>
+        </div>
+        <Button variant="outline" asChild>
+          <Link to="/cuti">Kembali ke daftar</Link>
         </Button>
       </div>
     )
   }
 
+  const cfg = statusConfig[cuti.usulcuti_status]
+
   return (
-    <div className="mx-auto max-w-2xl space-y-4">
+    <div className="mx-auto max-w-2xl space-y-5">
+      {/* Header */}
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" onClick={() => navigate({ to: '/cuti' })}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <div>
+        <div className="flex-1">
           <h2 className="text-2xl font-bold tracking-tight">Detail Cuti</h2>
-          <p className="text-muted-foreground">ID: #{cuti.usulcuti_id}</p>
+          <p className="text-sm text-muted-foreground">Pengajuan #{cuti.usulcuti_id}</p>
         </div>
-        <Badge variant="secondary" className={`ml-auto ${statusColors[cuti.usulcuti_status]}`}>
-          {cuti.usulcuti_status}
-        </Badge>
       </div>
 
+      {/* Status Banner */}
+      <div className={`rounded-lg border px-4 py-3 ${cfg.className}`}>
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-wider opacity-70">Status Pengajuan</p>
+            <p className="mt-0.5 text-base font-semibold">{cfg.label}</p>
+          </div>
+          <Badge variant="secondary" className={`text-sm ${cfg.badgeClassName}`}>
+            {cuti.usulcuti_status}
+          </Badge>
+        </div>
+      </div>
+
+      {/* Detail Card */}
       <Card>
-        <CardHeader>
-          <CardTitle>Informasi Pengajuan</CardTitle>
+        <CardHeader className="border-b pb-4">
+          <CardTitle className="text-base">Informasi Pengajuan</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <InfoRow label="Pegawai" value={`${formatNamaGelar(cuti.pegawai_nama ?? '', cuti.pegawai_gelardepan, cuti.pegawai_gelarbelakang)} (${cuti.pegawai_nip})`} />
-          <InfoRow label="SKPD" value={cuti.skpd_nama ?? '-'} />
-          <InfoRow label="Unit Kerja" value={cuti.subunit_nama ?? '-'} />
-          <InfoRow label="Jabatan" value={cuti.jabatan_nama ?? '-'} />
-          <InfoRow label="Jenis Cuti" value={cuti.jeniscuti_nama ?? '-'} />
+        <CardContent className="space-y-6 pt-5">
+
+          {/* Pegawai */}
+          <DetailSection icon={User} title="Data Pegawai">
+            <InfoRow label="Nama" wide>
+              {formatNamaGelar(cuti.pegawai_nama ?? '', cuti.pegawai_gelardepan, cuti.pegawai_gelarbelakang)}
+            </InfoRow>
+            <InfoRow label="NIP">{cuti.pegawai_nip ?? '—'}</InfoRow>
+            <InfoRow label="Jabatan">{cuti.jabatan_nama ?? '—'}</InfoRow>
+            <InfoRow label="SKPD">{cuti.skpd_nama ?? '—'}</InfoRow>
+            <InfoRow label="Unit Kerja">{cuti.subunit_nama ?? '—'}</InfoRow>
+          </DetailSection>
+
           <Separator />
-          <InfoRow
-            label="Periode"
-            value={`${format(new Date(cuti.usulcuti_tglawal), 'dd MMMM yyyy', { locale: localeId })} - ${format(new Date(cuti.usulcuti_tglakhir), 'dd MMMM yyyy', { locale: localeId })}`}
-          />
-          <InfoRow label="Jumlah Hari" value={`${cuti.usulcuti_jumlah} hari`} />
+
+          {/* Jenis & Periode */}
+          <DetailSection icon={CalendarDays} title="Jenis &amp; Periode Cuti">
+            <InfoRow label="Jenis Cuti" wide>{cuti.jeniscuti_nama ?? '—'}</InfoRow>
+            <InfoRow label="Tanggal Mulai">
+              {format(new Date(cuti.usulcuti_tglawal), 'dd MMMM yyyy', { locale: localeId })}
+            </InfoRow>
+            <InfoRow label="Tanggal Selesai">
+              {format(new Date(cuti.usulcuti_tglakhir), 'dd MMMM yyyy', { locale: localeId })}
+            </InfoRow>
+            <InfoRow label="Jumlah Hari">
+              <span className="font-semibold">{cuti.usulcuti_jumlah} hari</span>
+            </InfoRow>
+          </DetailSection>
+
           <Separator />
-          <InfoRow label="Alasan" value={cuti.usulcuti_alasan} />
-          <InfoRow label="Alamat Selama Cuti" value={cuti.usulcuti_alamat ?? '-'} />
-          <InfoRow label="Lokasi" value={cuti.usulcuti_lokasi ?? '-'} />
+
+          {/* Detail Cuti */}
+          <DetailSection icon={FileText} title="Detail Cuti">
+            <InfoRow label="Alasan" wide>{cuti.usulcuti_alasan}</InfoRow>
+            <InfoRow label="Alamat Selama Cuti" wide>{cuti.usulcuti_alamat ?? '—'}</InfoRow>
+            <InfoRow label="Lokasi">
+              <span className="inline-flex items-center gap-1">
+                <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                {cuti.usulcuti_lokasi ?? '—'}
+              </span>
+            </InfoRow>
+          </DetailSection>
+
           <Separator />
-          <InfoRow label="Atasan Langsung" value={cuti.atasanlangsung_nama ?? '-'} />
-          <InfoRow label="Status Atasan" value={cuti.atasanlangsung_status ?? '-'} />
-          <InfoRow label="Pejabat Berwenang" value={cuti.pejabat_nama ?? '-'} />
-          <InfoRow label="Status Pejabat" value={cuti.pejabat_status ?? '-'} />
+
+          {/* Persetujuan */}
+          <DetailSection icon={Users} title="Persetujuan">
+            <InfoRow label="Atasan Langsung">{cuti.atasanlangsung_nama ?? '—'}</InfoRow>
+            <InfoRow label="Status Atasan">
+              <ApprovalStatusBadge status={cuti.atasanlangsung_status} />
+            </InfoRow>
+            <InfoRow label="Pejabat Berwenang">{cuti.pejabat_nama ?? '—'}</InfoRow>
+            <InfoRow label="Status Pejabat">
+              <ApprovalStatusBadge status={cuti.pejabat_status} />
+            </InfoRow>
+          </DetailSection>
+
           <Separator />
-          <InfoRow
-            label="Tanggal Pengajuan"
-            value={format(new Date(cuti.created_at), 'dd MMMM yyyy HH:mm', {
-              locale: localeId,
-            })}
-          />
+
+          {/* Meta */}
+          <DetailSection icon={Building2} title="Informasi Pengajuan">
+            <InfoRow label="Tanggal Pengajuan" wide>
+              {format(new Date(cuti.created_at), 'dd MMMM yyyy, HH:mm', { locale: localeId })} WIB
+            </InfoRow>
+          </DetailSection>
         </CardContent>
       </Card>
 
-      <div className="flex gap-3">
-        {canVerify && (
-          <>
-            <Button
-              onClick={() => handleStatusUpdate('Terima')}
-              disabled={updateStatus.isPending}
-              className="bg-green-600 hover:bg-green-700"
-            >
-              {updateStatus.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Setujui
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={() => handleStatusUpdate('Ditolak')}
-              disabled={updateStatus.isPending}
-            >
-              Tolak
-            </Button>
-          </>
-        )}
-        {canCancel && (
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="outline">Batalkan Pengajuan</Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Batalkan Pengajuan Cuti?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Pengajuan cuti ini akan dibatalkan. Tindakan ini tidak dapat diurungkan.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Tidak</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleCancel}
-                  disabled={cancelCuti.isPending}
-                >
-                  Ya, Batalkan
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        )}
-      </div>
-    </div>
-  )
-}
-
-function InfoRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:gap-4">
-      <span className="min-w-[180px] text-sm font-medium text-muted-foreground">{label}</span>
-      <span className="text-sm">{value}</span>
+      {/* Action Buttons */}
+      {(canVerify || canCancel) && (
+        <div className="flex items-center gap-3">
+          {canVerify && (
+            <>
+              <Button
+                onClick={() => handleStatusUpdate('Terima')}
+                disabled={updateStatus.isPending}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                {updateStatus.isPending && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                <CheckCircle2 className="mr-2 h-4 w-4" />
+                Setujui
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => handleStatusUpdate('Ditolak')}
+                disabled={updateStatus.isPending}
+              >
+                <XCircle className="mr-2 h-4 w-4" />
+                Tolak
+              </Button>
+            </>
+          )}
+          {canCancel && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="outline" className="text-destructive hover:text-destructive">
+                  Batalkan Pengajuan
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Batalkan Pengajuan Cuti?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Pengajuan cuti ini akan dibatalkan dan tidak dapat diurungkan. Anda perlu
+                    membuat pengajuan baru jika ingin mengajukan kembali.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Tidak, Kembali</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleCancel}
+                    disabled={cancelCuti.isPending}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    {cancelCuti.isPending && (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    )}
+                    Ya, Batalkan
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+        </div>
+      )}
     </div>
   )
 }

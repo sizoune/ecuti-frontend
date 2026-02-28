@@ -4,7 +4,16 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
 import { useState, useEffect } from 'react'
-import { Check, ChevronsUpDown, Loader2 } from 'lucide-react'
+import {
+  BookOpen,
+  CalendarDays,
+  Check,
+  ChevronsUpDown,
+  FileText,
+  Loader2,
+  MapPin,
+  Users,
+} from 'lucide-react'
 import { useCreateCuti } from '#/hooks/use-cuti'
 import { useJenisCutiList } from '#/hooks/use-master'
 import { usePegawaiSearch } from '#/hooks/use-pegawai'
@@ -66,6 +75,23 @@ const cutiSchema = z.object({
 })
 
 type CutiForm = z.infer<typeof cutiSchema>
+
+function SectionHeader({
+  icon: Icon,
+  title,
+}: {
+  icon: React.ComponentType<{ className?: string }>
+  title: string
+}) {
+  return (
+    <div className="flex items-center gap-2 border-b pb-3">
+      <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10">
+        <Icon className="h-4 w-4 text-primary" />
+      </div>
+      <span className="text-sm font-semibold">{title}</span>
+    </div>
+  )
+}
 
 function PegawaiCombobox({
   value,
@@ -222,66 +248,105 @@ function BuatCutiPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4">
+    <div className="mx-auto max-w-2xl space-y-5">
       <div>
         <h2 className="text-2xl font-bold tracking-tight">Ajukan Cuti</h2>
-        <p className="text-muted-foreground">Buat pengajuan cuti baru</p>
+        <p className="mt-0.5 text-sm text-muted-foreground">
+          Isi formulir berikut untuk membuat pengajuan cuti baru
+        </p>
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Form Pengajuan Cuti</CardTitle>
+        <CardHeader className="border-b pb-4">
+          <CardTitle className="text-base">Formulir Pengajuan Cuti</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Lengkapi semua kolom yang ditandai wajib diisi
+          </p>
         </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="jeniscuti_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Jenis Cuti</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Pilih jenis cuti" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {jenisCuti?.map((jc) => (
-                          <SelectItem key={jc.jeniscuti_id} value={String(jc.jeniscuti_id)}>
-                            {jc.jeniscuti_nama}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
 
-              <div className="grid gap-4 sm:grid-cols-2">
+        <CardContent className="pt-6">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+
+              {/* Section 1: Jenis Cuti */}
+              <div className="space-y-4">
+                <SectionHeader icon={BookOpen} title="Jenis Cuti" />
                 <FormField
                   control={form.control}
-                  name="usulcuti_tglawal"
+                  name="jeniscuti_id"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Tanggal Mulai</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...field} />
-                      </FormControl>
+                      <FormLabel>Jenis Cuti</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Pilih jenis cuti" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {jenisCuti?.map((jc) => (
+                            <SelectItem key={jc.jeniscuti_id} value={String(jc.jeniscuti_id)}>
+                              {jc.jeniscuti_nama}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+              </div>
+
+              {/* Section 2: Periode */}
+              <div className="space-y-4">
+                <SectionHeader icon={CalendarDays} title="Periode Cuti" />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="usulcuti_tglawal"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tanggal Mulai</FormLabel>
+                        <FormControl>
+                          <Input type="date" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="usulcuti_tglakhir"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tanggal Selesai</FormLabel>
+                        <FormControl>
+                          <Input type="date" min={tglAwal} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
                 <FormField
                   control={form.control}
-                  name="usulcuti_tglakhir"
+                  name="usulcuti_jumlah"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tanggal Selesai</FormLabel>
+                    <FormItem className="max-w-[160px]">
+                      <FormLabel>Jumlah Hari</FormLabel>
                       <FormControl>
-                        <Input type="date" min={tglAwal} {...field} />
+                        <div className="relative">
+                          <Input
+                            type="number"
+                            min={1}
+                            readOnly
+                            {...field}
+                            className="pr-12 bg-muted/50 text-center font-medium"
+                          />
+                          <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-muted-foreground">
+                            hari
+                          </span>
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -289,115 +354,117 @@ function BuatCutiPage() {
                 />
               </div>
 
-              <FormField
-                control={form.control}
-                name="usulcuti_jumlah"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Jumlah Hari</FormLabel>
-                    <FormControl>
-                      <Input type="number" min={1} readOnly {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {/* Section 3: Detail */}
+              <div className="space-y-4">
+                <SectionHeader icon={FileText} title="Detail Cuti" />
+                <FormField
+                  control={form.control}
+                  name="usulcuti_alasan"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Alasan Cuti</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Tuliskan alasan cuti Anda secara singkat dan jelas"
+                          className="min-h-[90px] resize-none"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="usulcuti_alamat"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Alamat Selama Cuti</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Alamat lengkap selama cuti berlangsung" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="usulcuti_lokasi"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Lokasi</FormLabel>
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          className="flex gap-6"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="Dalam Negeri" id="dalam-negeri" />
+                            <Label htmlFor="dalam-negeri" className="cursor-pointer">
+                              <MapPin className="mr-1 inline h-3.5 w-3.5" />
+                              Dalam Negeri
+                            </Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="Luar Negeri" id="luar-negeri" />
+                            <Label htmlFor="luar-negeri" className="cursor-pointer">
+                              <MapPin className="mr-1 inline h-3.5 w-3.5" />
+                              Luar Negeri
+                            </Label>
+                          </div>
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-              <FormField
-                control={form.control}
-                name="usulcuti_alasan"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Alasan Cuti</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="Tuliskan alasan cuti Anda" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {/* Section 4: Persetujuan */}
+              <div className="space-y-4">
+                <SectionHeader icon={Users} title="Pejabat Persetujuan" />
+                <FormField
+                  control={form.control}
+                  name="atasanlangsung_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Atasan Langsung</FormLabel>
+                      <FormControl>
+                        <PegawaiCombobox
+                          value={field.value}
+                          onChange={field.onChange}
+                          excludeId={user?.pegawai_id}
+                          placeholder="Cari dan pilih atasan langsung"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="pejabat_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Pejabat Yang Berwenang</FormLabel>
+                      <FormControl>
+                        <PegawaiCombobox
+                          value={field.value}
+                          onChange={field.onChange}
+                          excludeId={user?.pegawai_id}
+                          placeholder="Cari dan pilih pejabat berwenang"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-              <FormField
-                control={form.control}
-                name="usulcuti_alamat"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Alamat Selama Cuti</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Alamat selama cuti" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="usulcuti_lokasi"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Lokasi</FormLabel>
-                    <FormControl>
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        className="flex gap-4"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="Dalam Negeri" id="dalam-negeri" />
-                          <Label htmlFor="dalam-negeri">Dalam Negeri</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="Luar Negeri" id="luar-negeri" />
-                          <Label htmlFor="luar-negeri">Luar Negeri</Label>
-                        </div>
-                      </RadioGroup>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="atasanlangsung_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Atasan Langsung</FormLabel>
-                    <FormControl>
-                      <PegawaiCombobox
-                        value={field.value}
-                        onChange={field.onChange}
-                        excludeId={user?.pegawai_id}
-                        placeholder="Pilih atasan langsung"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="pejabat_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Pejabat Yang Berwenang</FormLabel>
-                    <FormControl>
-                      <PegawaiCombobox
-                        value={field.value}
-                        onChange={field.onChange}
-                        excludeId={user?.pegawai_id}
-                        placeholder="Pilih pejabat"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="flex gap-3 pt-2">
-                <Button type="submit" disabled={createCuti.isPending}>
+              {/* Actions */}
+              <div className="flex items-center gap-3 border-t pt-4">
+                <Button type="submit" disabled={createCuti.isPending} className="min-w-[120px]">
                   {createCuti.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Ajukan Cuti
                 </Button>

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { createFileRoute, redirect } from '@tanstack/react-router'
-import { Plus, Trash2 } from 'lucide-react'
+import { Plus, Trash2, CalendarDays } from 'lucide-react'
 import { format } from 'date-fns'
 import { id } from 'date-fns/locale'
 import { toast } from 'sonner'
@@ -10,7 +10,7 @@ import {
   useCreateCutiBersama,
   useDeleteCutiBersama,
 } from '#/hooks/use-cuti-bersama'
-import { Card, CardContent, CardHeader, CardTitle } from '#/components/ui/card'
+import { Card, CardContent } from '#/components/ui/card'
 import {
   Table,
   TableBody,
@@ -29,6 +29,7 @@ import {
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
 import { Label } from '#/components/ui/label'
+import { Badge } from '#/components/ui/badge'
 import { Skeleton } from '#/components/ui/skeleton'
 import {
   Dialog,
@@ -96,39 +97,38 @@ function CutiBersamaPage() {
       </div>
 
       <Card>
-        <CardHeader className="pb-3">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <CardTitle className="text-base">Filter Tahun</CardTitle>
-              <Select
-                value={String(tahun)}
-                onValueChange={(v) => {
-                  setTahun(Number(v))
-                  setPage(1)
-                }}
-              >
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {yearOptions.map((y) => (
-                    <SelectItem key={y} value={String(y)}>
-                      {y}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {isSuperAdmin && (
-              <CreateCutiBersamaDialog tahun={tahun} />
-            )}
+        {/* Clean toolbar */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b px-6 py-3">
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-muted-foreground">Tahun:</span>
+            <Select
+              value={String(tahun)}
+              onValueChange={(v) => {
+                setTahun(Number(v))
+                setPage(1)
+              }}
+            >
+              <SelectTrigger className="w-32 h-9">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {yearOptions.map((y) => (
+                  <SelectItem key={y} value={String(y)}>
+                    {y}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-        </CardHeader>
 
-        <CardContent>
+          {isSuperAdmin && (
+            <CreateCutiBersamaDialog tahun={tahun} />
+          )}
+        </div>
+
+        <CardContent className="p-0">
           {isLoading ? (
-            <div className="space-y-3">
+            <div className="space-y-3 p-6">
               {Array.from({ length: 5 }).map((_, i) => (
                 <Skeleton key={i} className="h-12 w-full" />
               ))}
@@ -137,9 +137,9 @@ function CutiBersamaPage() {
             <>
               <Table>
                 <TableHeader>
-                  <TableRow>
+                  <TableRow className="hover:bg-transparent">
                     <TableHead className="w-12">No</TableHead>
-                    <TableHead>Nama</TableHead>
+                    <TableHead>Nama Hari Libur</TableHead>
                     <TableHead>Tanggal Awal</TableHead>
                     <TableHead>Tanggal Akhir</TableHead>
                     <TableHead className="text-center">Jumlah Hari</TableHead>
@@ -152,17 +152,19 @@ function CutiBersamaPage() {
                 <TableBody>
                   {data?.data && data.data.length > 0 ? (
                     data.data.map((item, idx) => (
-                      <TableRow key={item.cutibersama_id}>
-                        <TableCell>{(page - 1) * LIMIT + idx + 1}</TableCell>
+                      <TableRow key={item.cutibersama_id} className="hover:bg-muted/40 transition-colors">
+                        <TableCell className="text-muted-foreground">{(page - 1) * LIMIT + idx + 1}</TableCell>
                         <TableCell className="font-medium">
                           {item.cutibersama_nama}
                         </TableCell>
-                        <TableCell>{formatTanggal(item.cutibersama_tglawal)}</TableCell>
-                        <TableCell>{formatTanggal(item.cutibersama_tglakhir)}</TableCell>
+                        <TableCell className="text-sm">{formatTanggal(item.cutibersama_tglawal)}</TableCell>
+                        <TableCell className="text-sm">{formatTanggal(item.cutibersama_tglakhir)}</TableCell>
                         <TableCell className="text-center">
-                          {item.cutibersama_jumlah}
+                          <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200">
+                            {item.cutibersama_jumlah} hari
+                          </Badge>
                         </TableCell>
-                        <TableCell className="text-center">
+                        <TableCell className="text-center text-muted-foreground">
                           {item.cutibersama_tahun}
                         </TableCell>
                         {isSuperAdmin && (
@@ -176,9 +178,15 @@ function CutiBersamaPage() {
                     <TableRow>
                       <TableCell
                         colSpan={isSuperAdmin ? 7 : 6}
-                        className="py-8 text-center text-muted-foreground"
+                        className="py-16 text-center"
                       >
-                        Tidak ada data cuti bersama untuk tahun {tahun}
+                        <div className="flex flex-col items-center gap-3 text-muted-foreground">
+                          <CalendarDays className="h-10 w-10 opacity-30" />
+                          <div>
+                            <p className="font-medium text-sm">Tidak ada cuti bersama</p>
+                            <p className="text-xs mt-1">Belum ada data cuti bersama untuk tahun {tahun}.</p>
+                          </div>
+                        </div>
                       </TableCell>
                     </TableRow>
                   )}
@@ -186,7 +194,7 @@ function CutiBersamaPage() {
               </Table>
 
               {data && data.total > LIMIT && (
-                <div className="mt-4 flex items-center justify-between">
+                <div className="flex items-center justify-between border-t px-6 py-3">
                   <p className="text-sm text-muted-foreground">
                     {(page - 1) * LIMIT + 1}–{Math.min(page * LIMIT, data.total)} dari{' '}
                     {data.total}
@@ -278,13 +286,13 @@ function CreateCutiBersamaDialog({ tahun }: { tahun: number }) {
         <DialogHeader>
           <DialogTitle>Tambah Cuti Bersama</DialogTitle>
           <DialogDescription>
-            Isi data hari cuti bersama yang akan ditambahkan.
+            Isi data hari cuti bersama yang akan ditambahkan ke sistem.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="space-y-4 py-2">
             <div className="space-y-1.5">
-              <Label htmlFor="cb-nama">Nama</Label>
+              <Label htmlFor="cb-nama">Nama Hari Libur</Label>
               <Input
                 id="cb-nama"
                 placeholder="Contoh: Hari Raya Idul Fitri"
@@ -293,49 +301,53 @@ function CreateCutiBersamaDialog({ tahun }: { tahun: number }) {
                 required
               />
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="cb-tglawal">Tanggal Awal</Label>
-              <Input
-                id="cb-tglawal"
-                type="date"
-                value={tglawal}
-                onChange={(e) => setTglawal(e.target.value)}
-                required
-              />
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="cb-tglawal">Tanggal Awal</Label>
+                <Input
+                  id="cb-tglawal"
+                  type="date"
+                  value={tglawal}
+                  onChange={(e) => setTglawal(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="cb-tglakhir">Tanggal Akhir</Label>
+                <Input
+                  id="cb-tglakhir"
+                  type="date"
+                  value={tglakhir}
+                  onChange={(e) => setTglakhir(e.target.value)}
+                  required
+                />
+              </div>
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="cb-tglakhir">Tanggal Akhir</Label>
-              <Input
-                id="cb-tglakhir"
-                type="date"
-                value={tglakhir}
-                onChange={(e) => setTglakhir(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="cb-jumlah">Jumlah Hari</Label>
-              <Input
-                id="cb-jumlah"
-                type="number"
-                min={1}
-                placeholder="1"
-                value={jumlah}
-                onChange={(e) => setJumlah(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="cb-tahun">Tahun</Label>
-              <Input
-                id="cb-tahun"
-                type="number"
-                min={2020}
-                max={2099}
-                value={formTahun}
-                onChange={(e) => setFormTahun(e.target.value)}
-                required
-              />
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="cb-jumlah">Jumlah Hari</Label>
+                <Input
+                  id="cb-jumlah"
+                  type="number"
+                  min={1}
+                  placeholder="1"
+                  value={jumlah}
+                  onChange={(e) => setJumlah(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="cb-tahun">Tahun</Label>
+                <Input
+                  id="cb-tahun"
+                  type="number"
+                  min={2020}
+                  max={2099}
+                  value={formTahun}
+                  onChange={(e) => setFormTahun(e.target.value)}
+                  required
+                />
+              </div>
             </div>
           </div>
           <DialogFooter className="mt-4">
@@ -380,7 +392,12 @@ function DeleteCutiBersamaButton({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="ghost" size="icon" disabled={isPending}>
+        <Button
+          variant="ghost"
+          size="icon"
+          disabled={isPending}
+          className="hover:bg-red-50 hover:text-red-600"
+        >
           <Trash2 className="h-4 w-4 text-destructive" />
         </Button>
       </AlertDialogTrigger>
@@ -394,7 +411,12 @@ function DeleteCutiBersamaButton({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Batal</AlertDialogCancel>
-          <AlertDialogAction onClick={handleDelete}>Hapus</AlertDialogAction>
+          <AlertDialogAction
+            onClick={handleDelete}
+            className="bg-destructive hover:bg-destructive/90"
+          >
+            Hapus
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

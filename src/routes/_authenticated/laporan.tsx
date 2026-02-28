@@ -1,6 +1,13 @@
 import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
-import { BarChart3, Search } from 'lucide-react'
+import {
+  BarChart3,
+  Search,
+  Calendar,
+  TableProperties,
+  BookOpen,
+  FileX,
+} from 'lucide-react'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import { useAuth } from '#/lib/auth'
 import { formatNamaGelar } from '#/lib/utils'
@@ -76,6 +83,15 @@ function getStatusVariant(status: CutiStatus) {
   }
 }
 
+function EmptyState({ message }: { message: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-3 py-12 text-muted-foreground">
+      <FileX className="h-10 w-10 opacity-40" />
+      <p className="text-sm">{message}</p>
+    </div>
+  )
+}
+
 function LaporanPage() {
   const { user } = useAuth()
   const isAdmin = user && user.role !== 'Pegawai'
@@ -91,13 +107,26 @@ function LaporanPage() {
 
       <Tabs defaultValue="dashboard">
         <TabsList>
-          <TabsTrigger value="dashboard">
+          <TabsTrigger value="dashboard" className="gap-1.5">
             <BarChart3 className="h-4 w-4" />
             Dashboard
           </TabsTrigger>
-          {isAdmin && <TabsTrigger value="cuti-bulanan">Cuti Bulanan</TabsTrigger>}
-          {isAdmin && <TabsTrigger value="rekapitulasi">Rekapitulasi</TabsTrigger>}
-          <TabsTrigger value="buku-cuti">Buku Cuti</TabsTrigger>
+          {isAdmin && (
+            <TabsTrigger value="cuti-bulanan" className="gap-1.5">
+              <Calendar className="h-4 w-4" />
+              Cuti Bulanan
+            </TabsTrigger>
+          )}
+          {isAdmin && (
+            <TabsTrigger value="rekapitulasi" className="gap-1.5">
+              <TableProperties className="h-4 w-4" />
+              Rekapitulasi
+            </TabsTrigger>
+          )}
+          <TabsTrigger value="buku-cuti" className="gap-1.5">
+            <BookOpen className="h-4 w-4" />
+            Buku Cuti
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="dashboard">
@@ -133,22 +162,30 @@ function DashboardTab() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-3">
-        <label className="text-sm font-medium">Tahun</label>
-        <Input
-          type="number"
-          value={tahun}
-          onChange={(e) => setTahun(Number(e.target.value))}
-          className="w-28"
-          min={2020}
-          max={2099}
-        />
-      </div>
+      <Card className="border-dashed">
+        <CardContent className="py-3">
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-muted-foreground">
+                Tahun
+              </label>
+              <Input
+                type="number"
+                value={tahun}
+                onChange={(e) => setTahun(Number(e.target.value))}
+                className="w-28"
+                min={2020}
+                max={2099}
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {isLoading ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-72" />
+            <Skeleton key={i} className="h-44" />
           ))}
         </div>
       ) : data && data.length > 0 ? (
@@ -159,8 +196,8 @@ function DashboardTab() {
         </div>
       ) : (
         <Card>
-          <CardContent className="py-12 text-center text-muted-foreground">
-            Tidak ada data laporan untuk tahun {tahun}
+          <CardContent>
+            <EmptyState message={`Tidak ada data laporan untuk tahun ${tahun}`} />
           </CardContent>
         </Card>
       )}
@@ -179,23 +216,26 @@ function DashboardPieCard({ item }: { item: LaporanDashboardItem }) {
   ].filter((d) => d.value > 0)
 
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium">
+    <Card className="overflow-hidden">
+      <CardHeader className="pb-2 pt-4">
+        <CardTitle className="text-sm font-medium text-muted-foreground">
           {item.jeniscuti_nama}
         </CardTitle>
-        <p className="text-2xl font-bold">{item.total}</p>
+        <div className="flex items-baseline gap-1.5">
+          <span className="text-3xl font-bold">{item.total}</span>
+          <span className="text-xs text-muted-foreground">pengajuan</span>
+        </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pb-4">
         {pieData.length > 0 ? (
-          <ResponsiveContainer width="100%" height={200}>
+          <ResponsiveContainer width="100%" height={160}>
             <PieChart>
               <Pie
                 data={pieData}
                 cx="50%"
                 cy="50%"
-                innerRadius={40}
-                outerRadius={70}
+                innerRadius={32}
+                outerRadius={56}
                 paddingAngle={2}
                 dataKey="value"
               >
@@ -209,13 +249,14 @@ function DashboardPieCard({ item }: { item: LaporanDashboardItem }) {
               <Tooltip />
               <Legend
                 iconSize={8}
-                wrapperStyle={{ fontSize: '12px' }}
+                wrapperStyle={{ fontSize: '11px' }}
               />
             </PieChart>
           </ResponsiveContainer>
         ) : (
-          <div className="flex h-[200px] items-center justify-center text-sm text-muted-foreground">
-            Tidak ada data
+          <div className="flex flex-col items-center justify-center gap-2 py-4 text-muted-foreground">
+            <FileX className="h-7 w-7 opacity-30" />
+            <span className="text-xs">Belum ada data status</span>
           </div>
         )}
       </CardContent>
@@ -241,58 +282,70 @@ function CutiBulananTab({ isSuperAdmin }: { isSuperAdmin: boolean }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-2">
-          <label className="text-sm font-medium">Tahun</label>
-          <Input
-            type="number"
-            value={tahun}
-            onChange={(e) => setTahun(Number(e.target.value))}
-            className="w-28"
-            min={2020}
-            max={2099}
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <label className="text-sm font-medium">Bulan</label>
-          <Select
-            value={String(bulan)}
-            onValueChange={(v) => setBulan(Number(v))}
-          >
-            <SelectTrigger className="w-36">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {BULAN_OPTIONS.map((b) => (
-                <SelectItem key={b.value} value={b.value}>
-                  {b.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        {isSuperAdmin && (
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium">SKPD</label>
-            <Select
-              value={skpdId ? String(skpdId) : 'all'}
-              onValueChange={(v) => setSkpdId(v === 'all' ? undefined : Number(v))}
-            >
-              <SelectTrigger className="w-64">
-                <SelectValue placeholder="Semua SKPD" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Semua SKPD</SelectItem>
-                {skpdList?.map((s) => (
-                  <SelectItem key={s.skpd_id} value={String(s.skpd_id)}>
-                    {s.skpd_nama}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+      <Card className="border-dashed">
+        <CardContent className="py-3">
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-muted-foreground">
+                Tahun
+              </label>
+              <Input
+                type="number"
+                value={tahun}
+                onChange={(e) => setTahun(Number(e.target.value))}
+                className="w-28"
+                min={2020}
+                max={2099}
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-muted-foreground">
+                Bulan
+              </label>
+              <Select
+                value={String(bulan)}
+                onValueChange={(v) => setBulan(Number(v))}
+              >
+                <SelectTrigger className="w-36">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {BULAN_OPTIONS.map((b) => (
+                    <SelectItem key={b.value} value={b.value}>
+                      {b.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {isSuperAdmin && (
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-muted-foreground">
+                  SKPD
+                </label>
+                <Select
+                  value={skpdId ? String(skpdId) : 'all'}
+                  onValueChange={(v) =>
+                    setSkpdId(v === 'all' ? undefined : Number(v))
+                  }
+                >
+                  <SelectTrigger className="w-64">
+                    <SelectValue placeholder="Semua SKPD" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Semua SKPD</SelectItem>
+                    {skpdList?.map((s) => (
+                      <SelectItem key={s.skpd_id} value={String(s.skpd_id)}>
+                        {s.skpd_nama}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardContent className="pt-6">
@@ -318,7 +371,10 @@ function CutiBulananTab({ isSuperAdmin }: { isSuperAdmin: boolean }) {
               </TableHeader>
               <TableBody>
                 {data.map((item, idx) => (
-                  <TableRow key={item.usulcuti_id}>
+                  <TableRow
+                    key={item.usulcuti_id}
+                    className={idx % 2 === 0 ? 'bg-muted/30' : ''}
+                  >
                     <TableCell>{idx + 1}</TableCell>
                     <TableCell className="font-mono text-xs">
                       {item.pegawai_nip}
@@ -349,9 +405,7 @@ function CutiBulananTab({ isSuperAdmin }: { isSuperAdmin: boolean }) {
               </TableBody>
             </Table>
           ) : (
-            <p className="py-8 text-center text-muted-foreground">
-              Tidak ada data cuti untuk periode ini
-            </p>
+            <EmptyState message="Tidak ada data cuti untuk periode ini" />
           )}
         </CardContent>
       </Card>
@@ -383,40 +437,50 @@ function RekapitulasiTab({ isSuperAdmin }: { isSuperAdmin: boolean }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-2">
-          <label className="text-sm font-medium">Tahun</label>
-          <Input
-            type="number"
-            value={tahun}
-            onChange={(e) => setTahun(Number(e.target.value))}
-            className="w-28"
-            min={2020}
-            max={2099}
-          />
-        </div>
-        {isSuperAdmin && (
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium">SKPD</label>
-            <Select
-              value={skpdId ? String(skpdId) : 'all'}
-              onValueChange={(v) => setSkpdId(v === 'all' ? undefined : Number(v))}
-            >
-              <SelectTrigger className="w-64">
-                <SelectValue placeholder="Semua SKPD" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Semua SKPD</SelectItem>
-                {skpdList?.map((s) => (
-                  <SelectItem key={s.skpd_id} value={String(s.skpd_id)}>
-                    {s.skpd_nama}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+      <Card className="border-dashed">
+        <CardContent className="py-3">
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-muted-foreground">
+                Tahun
+              </label>
+              <Input
+                type="number"
+                value={tahun}
+                onChange={(e) => setTahun(Number(e.target.value))}
+                className="w-28"
+                min={2020}
+                max={2099}
+              />
+            </div>
+            {isSuperAdmin && (
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-muted-foreground">
+                  SKPD
+                </label>
+                <Select
+                  value={skpdId ? String(skpdId) : 'all'}
+                  onValueChange={(v) =>
+                    setSkpdId(v === 'all' ? undefined : Number(v))
+                  }
+                >
+                  <SelectTrigger className="w-64">
+                    <SelectValue placeholder="Semua SKPD" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Semua SKPD</SelectItem>
+                    {skpdList?.map((s) => (
+                      <SelectItem key={s.skpd_id} value={String(s.skpd_id)}>
+                        {s.skpd_nama}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardContent className="pt-6">
@@ -440,8 +504,11 @@ function RekapitulasiTab({ isSuperAdmin }: { isSuperAdmin: boolean }) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.map((item) => (
-                  <TableRow key={item.jeniscuti_id}>
+                {data.map((item, idx) => (
+                  <TableRow
+                    key={item.jeniscuti_id}
+                    className={idx % 2 === 0 ? 'bg-muted/30' : ''}
+                  >
                     <TableCell className="font-medium">
                       {item.jeniscuti_nama}
                     </TableCell>
@@ -458,9 +525,9 @@ function RekapitulasiTab({ isSuperAdmin }: { isSuperAdmin: boolean }) {
               </TableBody>
             </Table>
           ) : (
-            <p className="py-8 text-center text-muted-foreground">
-              Tidak ada data rekapitulasi untuk tahun {tahun}
-            </p>
+            <EmptyState
+              message={`Tidak ada data rekapitulasi untuk tahun ${tahun}`}
+            />
           )}
         </CardContent>
       </Card>
@@ -489,74 +556,86 @@ function BukuCutiTab({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
-        {!isPegawai && (
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium">Pegawai</label>
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Cari NIP atau nama..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-72 pl-9"
-              />
-              {searchQuery.length >= 3 && searchResults?.data && searchResults.data.length > 0 && (
-                <div className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border bg-popover p-1 shadow-md">
-                  {searchResults.data.map((p) => (
-                    <button
-                      key={p.pegawai_id}
-                      type="button"
-                      className="flex w-full flex-col items-start rounded-sm px-2 py-1.5 text-sm hover:bg-accent"
-                      onClick={() => {
-                        setPegawaiId(p.pegawai_id)
-                        setSearchQuery(
-                          formatNamaGelar(
-                            p.pegawai_nama,
-                            p.pegawai_gelardepan,
-                            p.pegawai_gelarbelakang,
-                          ),
-                        )
-                      }}
-                    >
-                      <span className="font-medium">
-                        {formatNamaGelar(
-                          p.pegawai_nama,
-                          p.pegawai_gelardepan,
-                          p.pegawai_gelarbelakang,
-                        )}
-                      </span>
-                      <span className="font-mono text-xs text-muted-foreground">
-                        {p.pegawai_nip}
-                      </span>
-                    </button>
-                  ))}
+      <Card className="border-dashed">
+        <CardContent className="py-3">
+          <div className="flex flex-wrap items-center gap-4">
+            {!isPegawai && (
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-muted-foreground">
+                  Pegawai
+                </label>
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Cari NIP atau nama..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-72 pl-9"
+                  />
+                  {searchQuery.length >= 3 &&
+                    searchResults?.data &&
+                    searchResults.data.length > 0 && (
+                      <div className="absolute z-50 mt-1.5 max-h-60 w-full overflow-auto rounded-lg border bg-popover p-1 shadow-lg ring-1 ring-black/5">
+                        {searchResults.data.map((p) => (
+                          <button
+                            key={p.pegawai_id}
+                            type="button"
+                            className="flex w-full flex-col items-start rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent"
+                            onClick={() => {
+                              setPegawaiId(p.pegawai_id)
+                              setSearchQuery(
+                                formatNamaGelar(
+                                  p.pegawai_nama,
+                                  p.pegawai_gelardepan,
+                                  p.pegawai_gelarbelakang,
+                                ),
+                              )
+                            }}
+                          >
+                            <span className="font-medium">
+                              {formatNamaGelar(
+                                p.pegawai_nama,
+                                p.pegawai_gelardepan,
+                                p.pegawai_gelarbelakang,
+                              )}
+                            </span>
+                            <span className="font-mono text-xs text-muted-foreground">
+                              {p.pegawai_nip}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                 </div>
-              )}
+              </div>
+            )}
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-muted-foreground">
+                Tahun
+              </label>
+              <Input
+                type="number"
+                value={tahun}
+                onChange={(e) => setTahun(Number(e.target.value))}
+                className="w-28"
+                min={2020}
+                max={2099}
+              />
             </div>
           </div>
-        )}
-        <div className="flex items-center gap-2">
-          <label className="text-sm font-medium">Tahun</label>
-          <Input
-            type="number"
-            value={tahun}
-            onChange={(e) => setTahun(Number(e.target.value))}
-            className="w-28"
-            min={2020}
-            max={2099}
-          />
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardContent className="pt-6">
           {!pegawaiId ? (
-            <p className="py-8 text-center text-muted-foreground">
-              {isPegawai
-                ? 'Data buku cuti tidak tersedia'
-                : 'Pilih pegawai untuk melihat buku cuti'}
-            </p>
+            <EmptyState
+              message={
+                isPegawai
+                  ? 'Data buku cuti tidak tersedia'
+                  : 'Pilih pegawai untuk melihat buku cuti'
+              }
+            />
           ) : isLoading ? (
             <div className="space-y-2">
               {Array.from({ length: 5 }).map((_, i) => (
@@ -575,7 +654,10 @@ function BukuCutiTab({
               </TableHeader>
               <TableBody>
                 {data.map((item, idx) => (
-                  <TableRow key={item.bukucuti_id}>
+                  <TableRow
+                    key={item.bukucuti_id}
+                    className={idx % 2 === 0 ? 'bg-muted/30' : ''}
+                  >
                     <TableCell>{idx + 1}</TableCell>
                     <TableCell>{item.jeniscuti_nama}</TableCell>
                     <TableCell className="text-center">
@@ -589,9 +671,7 @@ function BukuCutiTab({
               </TableBody>
             </Table>
           ) : (
-            <p className="py-8 text-center text-muted-foreground">
-              Tidak ada data buku cuti
-            </p>
+            <EmptyState message="Tidak ada data buku cuti" />
           )}
         </CardContent>
       </Card>
