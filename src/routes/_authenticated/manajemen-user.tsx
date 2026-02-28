@@ -436,7 +436,7 @@ function AssignRoleDialog({
 						Cari pegawai lalu tetapkan role dan SKPD yang sesuai.
 					</DialogDescription>
 				</DialogHeader>
-				<form onSubmit={handleSubmit}>
+				<form onSubmit={handleSubmit} className="min-w-0">
 					<div className="space-y-4 py-2">
 						<div className="space-y-1.5" ref={searchRef}>
 							<Label htmlFor="pegawai-search">Pegawai</Label>
@@ -499,7 +499,7 @@ function AssignRoleDialog({
 						<div className="space-y-1.5">
 							<Label htmlFor="role-select">Role</Label>
 							<Select value={roleId} onValueChange={setRoleId}>
-								<SelectTrigger id="role-select">
+								<SelectTrigger id="role-select" className="w-full">
 									<SelectValue placeholder="Pilih role..." />
 								</SelectTrigger>
 								<SelectContent>
@@ -512,7 +512,7 @@ function AssignRoleDialog({
 						<div className="space-y-1.5">
 							<Label htmlFor="skpd-select">SKPD</Label>
 							<Select value={skpdId} onValueChange={setSkpdId}>
-								<SelectTrigger id="skpd-select">
+								<SelectTrigger id="skpd-select" className="w-full">
 									<SelectValue placeholder="Pilih SKPD..." />
 								</SelectTrigger>
 								<SelectContent>

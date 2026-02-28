@@ -352,7 +352,7 @@ function BuatCutiPage() {
 												value={field.value}
 											>
 												<FormControl>
-													<SelectTrigger>
+													<SelectTrigger className="w-full">
 														<SelectValue placeholder="Pilih jenis cuti" />
 													</SelectTrigger>
 												</FormControl>

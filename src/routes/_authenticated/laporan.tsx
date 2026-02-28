@@ -1186,7 +1186,7 @@ function BukuCutiTab({
 					<Form {...createForm}>
 						<form
 							onSubmit={createForm.handleSubmit(handleCreateSubmit)}
-							className="space-y-4"
+							className="space-y-4 min-w-0"
 						>
 							<FormField
 								control={createForm.control}
@@ -1199,7 +1199,7 @@ function BukuCutiTab({
 											value={field.value ?? ""}
 										>
 											<FormControl>
-												<SelectTrigger>
+												<SelectTrigger className="w-full">
 													<SelectValue placeholder="Pilih jenis cuti" />
 												</SelectTrigger>
 											</FormControl>
