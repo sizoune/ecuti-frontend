@@ -8,7 +8,7 @@ import {
   BookOpen,
   FileX,
 } from 'lucide-react'
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts'
+import { useMemo } from 'react'
 import { useAuth } from '#/lib/auth'
 import { formatNamaGelar } from '#/lib/utils'
 import {
@@ -205,18 +205,96 @@ function DashboardTab() {
   )
 }
 
-function DashboardPieCard({ item }: { item: LaporanDashboardItem }) {
-  const pieData = [
-    { name: 'Verifikasi', value: item.verifikasi },
-    { name: 'BTL', value: item.btl },
-    { name: 'Ditolak', value: item.ditolak },
-    { name: 'Batal', value: item.batal },
-    { name: 'Proses', value: item.proses },
-    { name: 'Terima', value: item.terima },
-  ].filter((d) => d.value > 0)
+function DonutChart({
+  data,
+  size = 130,
+  strokeWidth = 22,
+  centerLabel,
+}: {
+  data: { name: string; value: number; color: string }[]
+  size?: number
+  strokeWidth?: number
+  centerLabel?: string
+}) {
+  const segments = useMemo(() => {
+    const total = data.reduce((sum, d) => sum + d.value, 0)
+    if (total === 0) return []
+    const radius = (size - strokeWidth) / 2
+    const cx = size / 2
+    const cy = size / 2
+    const gap = data.length > 1 ? 0.03 : 0 // small gap in radians between segments
+    let cumulative = 0
+
+    return data.map((d) => {
+      const startFrac = cumulative / total
+      cumulative += d.value
+      const endFrac = cumulative / total
+
+      const startAngle = startFrac * Math.PI * 2 - Math.PI / 2 + gap
+      const endAngle = endFrac * Math.PI * 2 - Math.PI / 2 - gap
+      const largeArc = endAngle - startAngle > Math.PI ? 1 : 0
+
+      const x1 = cx + radius * Math.cos(startAngle)
+      const y1 = cy + radius * Math.sin(startAngle)
+      const x2 = cx + radius * Math.cos(endAngle)
+      const y2 = cy + radius * Math.sin(endAngle)
+
+      // For single-item data, draw a full circle
+      if (data.length === 1) {
+        return {
+          ...d,
+          path: `M ${cx - radius} ${cy} A ${radius} ${radius} 0 1 1 ${cx + radius} ${cy} A ${radius} ${radius} 0 1 1 ${cx - radius} ${cy}`,
+        }
+      }
+
+      return {
+        ...d,
+        path: `M ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2}`,
+      }
+    })
+  }, [data, size, strokeWidth])
 
   return (
-    <Card className="overflow-hidden">
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      {segments.map((seg) => (
+        <path
+          key={seg.name}
+          d={seg.path}
+          fill="none"
+          stroke={seg.color}
+          strokeWidth={strokeWidth}
+          strokeLinecap="butt"
+        />
+      ))}
+      {centerLabel && (
+        <text
+          x={size / 2}
+          y={size / 2}
+          textAnchor="middle"
+          dominantBaseline="central"
+          className="fill-foreground text-lg font-bold"
+        >
+          {centerLabel}
+        </text>
+      )}
+    </svg>
+  )
+}
+
+function DashboardPieCard({ item }: { item: LaporanDashboardItem }) {
+  const pieData = [
+    { name: 'Verifikasi', value: Number(item.verifikasi) || 0, color: STATUS_COLORS.Verifikasi },
+    { name: 'BTL', value: Number(item.btl) || 0, color: STATUS_COLORS.BTL },
+    { name: 'Ditolak', value: Number(item.ditolak) || 0, color: STATUS_COLORS.Ditolak },
+    { name: 'Batal', value: Number(item.batal) || 0, color: STATUS_COLORS.Batal },
+    { name: 'Proses', value: Number(item.proses) || 0, color: STATUS_COLORS.Proses },
+    { name: 'Terima', value: Number(item.terima) || 0, color: STATUS_COLORS.Terima },
+  ].filter((d) => d.value > 0)
+
+  const total = pieData.reduce((sum, d) => sum + d.value, 0)
+
+  return (
+    <Card>
       <CardHeader className="pb-2 pt-4">
         <CardTitle className="text-sm font-medium text-muted-foreground">
           {item.jeniscuti_nama}
@@ -228,31 +306,23 @@ function DashboardPieCard({ item }: { item: LaporanDashboardItem }) {
       </CardHeader>
       <CardContent className="pb-4">
         {pieData.length > 0 ? (
-          <ResponsiveContainer width="100%" height={160}>
-            <PieChart>
-              <Pie
-                data={pieData}
-                cx="50%"
-                cy="50%"
-                innerRadius={32}
-                outerRadius={56}
-                paddingAngle={2}
-                dataKey="value"
-              >
-                {pieData.map((entry) => (
-                  <Cell
-                    key={entry.name}
-                    fill={STATUS_COLORS[entry.name] || '#94a3b8'}
+          <div className="flex flex-col items-center gap-3">
+            <DonutChart data={pieData} centerLabel={String(total)} />
+            <div className="flex flex-wrap justify-center gap-x-3 gap-y-1">
+              {pieData.map((d) => (
+                <div key={d.name} className="flex items-center gap-1.5 text-xs">
+                  <span
+                    className="inline-block h-2.5 w-2.5 rounded-full"
+                    style={{ backgroundColor: d.color }}
                   />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend
-                iconSize={8}
-                wrapperStyle={{ fontSize: '11px' }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
+                  <span className="text-muted-foreground">
+                    {d.name}{' '}
+                    <span className="font-medium text-foreground">{d.value}</span>
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
         ) : (
           <div className="flex flex-col items-center justify-center gap-2 py-4 text-muted-foreground">
             <FileX className="h-7 w-7 opacity-30" />
