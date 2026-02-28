@@ -1,0 +1,10 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-https://api-e-cuti-dev.tabalongkab.go.id/api}
+    expose:
+      - "3000"
+    restart: unless-stopped
