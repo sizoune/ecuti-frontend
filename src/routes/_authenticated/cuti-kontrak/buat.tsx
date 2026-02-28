@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import {
 	BookOpen,
 	CalendarDays,
@@ -7,12 +7,10 @@ import {
 	ChevronsUpDown,
 	FileText,
 	Loader2,
-	MapPin,
-	Paperclip,
+	User,
 	Users,
-	X,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -35,13 +33,11 @@ import {
 	FormMessage,
 } from "#/components/ui/form";
 import { Input } from "#/components/ui/input";
-import { Label } from "#/components/ui/label";
 import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
 } from "#/components/ui/popover";
-import { RadioGroup, RadioGroupItem } from "#/components/ui/radio-group";
 import {
 	Select,
 	SelectContent,
@@ -50,31 +46,40 @@ import {
 	SelectValue,
 } from "#/components/ui/select";
 import { Textarea } from "#/components/ui/textarea";
-import { useCreateCuti } from "#/hooks/use-cuti";
+import { useCreateCutiKontrak } from "#/hooks/use-cuti-kontrak";
 import { useJenisCutiList } from "#/hooks/use-master";
 import { usePegawaiSearch } from "#/hooks/use-pegawai";
-import api from "#/lib/api";
-import { useAuth } from "#/lib/auth";
 import { cn, formatNamaGelar } from "#/lib/utils";
 import type { Pegawai } from "#/types";
 
-export const Route = createFileRoute("/_authenticated/cuti/buat")({
-	component: BuatCutiPage,
+export const Route = createFileRoute("/_authenticated/cuti-kontrak/buat")({
+	beforeLoad: () => {
+		const stored = localStorage.getItem("user");
+		if (stored) {
+			const user = JSON.parse(stored);
+			if (
+				!["Super Admin", "Admin SKPD", "Admin Uker"].includes(user.role)
+			) {
+				throw redirect({ to: "/" });
+			}
+		}
+	},
+	component: CutiKontrakBuat,
 });
 
-const cutiSchema = z.object({
+const cutiKontrakSchema = z.object({
+	pegawai_id: z.string().min(1, "Pegawai wajib dipilih"),
 	jeniscuti_id: z.string().min(1, "Jenis cuti wajib dipilih"),
-	usulcuti_tglawal: z.string().min(1, "Tanggal mulai wajib diisi"),
-	usulcuti_tglakhir: z.string().min(1, "Tanggal selesai wajib diisi"),
-	usulcuti_jumlah: z.string(),
-	usulcuti_alasan: z.string().min(1, "Alasan cuti wajib diisi"),
-	usulcuti_alamat: z.string().min(1, "Alamat selama cuti wajib diisi"),
-	usulcuti_lokasi: z.string().min(1, "Lokasi wajib dipilih"),
+	usulcutikontrak_tglawal: z.string().min(1, "Tanggal mulai wajib diisi"),
+	usulcutikontrak_tglakhir: z.string().min(1, "Tanggal selesai wajib diisi"),
+	usulcutikontrak_jumlah: z.string(),
+	usulcutikontrak_alasan: z.string().min(1, "Alasan cuti wajib diisi"),
+	usulcutikontrak_alamat: z.string().min(1, "Alamat selama cuti wajib diisi"),
 	atasanlangsung_id: z.string().min(1, "Atasan langsung wajib dipilih"),
 	pejabat_id: z.string().min(1, "Pejabat wajib dipilih"),
 });
 
-type CutiForm = z.infer<typeof cutiSchema>;
+type CutiKontrakForm = z.infer<typeof cutiKontrakSchema>;
 
 function SectionHeader({
 	icon: Icon,
@@ -203,57 +208,28 @@ function PegawaiCombobox({
 	);
 }
 
-const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
-
-function BuatCutiPage() {
+function CutiKontrakBuat() {
 	const navigate = useNavigate();
-	const { user } = useAuth();
-	const createCuti = useCreateCuti();
+	const createCutiKontrak = useCreateCutiKontrak();
 	const { data: jenisCuti } = useJenisCutiList();
-	const [pendingFile, setPendingFile] = useState<File | null>(null);
-	const [fileError, setFileError] = useState<string | null>(null);
-	const [uploadingFile, setUploadingFile] = useState(false);
-	const fileInputRef = useRef<HTMLInputElement>(null);
 
-	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const file = e.target.files?.[0] ?? null;
-		setFileError(null);
-		if (!file) {
-			setPendingFile(null);
-			return;
-		}
-		if (file.type !== "application/pdf") {
-			setFileError("File harus berformat PDF");
-			setPendingFile(null);
-			e.target.value = "";
-			return;
-		}
-		if (file.size > MAX_FILE_SIZE) {
-			setFileError("Ukuran file tidak boleh lebih dari 2 MB");
-			setPendingFile(null);
-			e.target.value = "";
-			return;
-		}
-		setPendingFile(file);
-	};
-
-	const form = useForm<CutiForm>({
-		resolver: zodResolver(cutiSchema),
+	const form = useForm<CutiKontrakForm>({
+		resolver: zodResolver(cutiKontrakSchema),
 		defaultValues: {
+			pegawai_id: "",
 			jeniscuti_id: "",
-			usulcuti_tglawal: "",
-			usulcuti_tglakhir: "",
-			usulcuti_jumlah: "0",
-			usulcuti_alasan: "",
-			usulcuti_alamat: "",
-			usulcuti_lokasi: "Dalam Negeri",
+			usulcutikontrak_tglawal: "",
+			usulcutikontrak_tglakhir: "",
+			usulcutikontrak_jumlah: "0",
+			usulcutikontrak_alasan: "",
+			usulcutikontrak_alamat: "",
 			atasanlangsung_id: "",
 			pejabat_id: "",
 		},
 	});
 
-	const tglAwal = form.watch("usulcuti_tglawal");
-	const tglAkhir = form.watch("usulcuti_tglakhir");
+	const tglAwal = form.watch("usulcutikontrak_tglawal");
+	const tglAkhir = form.watch("usulcutikontrak_tglakhir");
 
 	// Auto-calculate days
 	if (tglAwal && tglAkhir) {
@@ -261,59 +237,32 @@ function BuatCutiPage() {
 		const end = new Date(tglAkhir);
 		const diff =
 			Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-		if (diff > 0 && String(diff) !== form.getValues("usulcuti_jumlah")) {
-			form.setValue("usulcuti_jumlah", String(diff));
+		if (diff > 0 && String(diff) !== form.getValues("usulcutikontrak_jumlah")) {
+			form.setValue("usulcutikontrak_jumlah", String(diff));
 		}
 	}
 
-	const onSubmit = async (values: CutiForm) => {
+	const onSubmit = async (values: CutiKontrakForm) => {
 		try {
-			const result = await createCuti.mutateAsync({
+			await createCutiKontrak.mutateAsync({
+				pegawai_id: Number(values.pegawai_id),
 				jeniscuti_id: Number(values.jeniscuti_id),
-				usulcuti_tglawal: values.usulcuti_tglawal,
-				usulcuti_tglakhir: values.usulcuti_tglakhir,
-				usulcuti_jumlah: Number(values.usulcuti_jumlah),
-				usulcuti_alasan: values.usulcuti_alasan,
-				usulcuti_alamat: values.usulcuti_alamat,
-				usulcuti_lokasi: values.usulcuti_lokasi as
-					| "Dalam Negeri"
-					| "Luar Negeri",
+				usulcutikontrak_tglawal: values.usulcutikontrak_tglawal,
+				usulcutikontrak_tglakhir: values.usulcutikontrak_tglakhir,
+				usulcutikontrak_jumlah: Number(values.usulcutikontrak_jumlah),
+				usulcutikontrak_alasan: values.usulcutikontrak_alasan,
+				usulcutikontrak_alamat: values.usulcutikontrak_alamat,
 				atasanlangsung_id: Number(values.atasanlangsung_id),
 				pejabat_id: Number(values.pejabat_id),
 			});
-
-			// Upload file pengantar if provided
-			if (pendingFile && result.usulcuti_id) {
-				setUploadingFile(true);
-				try {
-					const formData = new FormData();
-					formData.append("file", pendingFile);
-					await api.post(
-						`/cuti/${result.usulcuti_id}/file-pengantar`,
-						formData,
-						{
-							headers: { "Content-Type": "multipart/form-data" },
-						},
-					);
-				} catch {
-					setUploadingFile(false);
-					toast.warning(
-						"Pengajuan berhasil dibuat, namun gagal mengunggah file pengantar",
-					);
-					navigate({ to: "/cuti" });
-					return;
-				}
-				setUploadingFile(false);
-			}
-
-			toast.success("Pengajuan cuti berhasil dibuat");
-			navigate({ to: "/cuti" });
+			toast.success("Pengajuan cuti kontrak berhasil dibuat");
+			navigate({ to: "/cuti-kontrak" });
 		} catch (error: unknown) {
 			const err = error as {
 				response?: { data?: { message?: string | string[] } };
 			};
 			const message =
-				err?.response?.data?.message || "Gagal membuat pengajuan cuti";
+				err?.response?.data?.message || "Gagal membuat pengajuan cuti kontrak";
 			toast.error(Array.isArray(message) ? message[0] : message);
 		}
 	};
@@ -321,15 +270,19 @@ function BuatCutiPage() {
 	return (
 		<div className="mx-auto max-w-2xl space-y-5">
 			<div>
-				<h2 className="text-2xl font-bold tracking-tight">Ajukan Cuti</h2>
+				<h2 className="text-2xl font-bold tracking-tight">
+					Ajukan Cuti Kontrak
+				</h2>
 				<p className="mt-0.5 text-sm text-muted-foreground">
-					Isi formulir berikut untuk membuat pengajuan cuti baru
+					Isi formulir berikut untuk membuat pengajuan cuti pegawai kontrak
 				</p>
 			</div>
 
 			<Card>
 				<CardHeader className="border-b pb-4">
-					<CardTitle className="text-base">Formulir Pengajuan Cuti</CardTitle>
+					<CardTitle className="text-base">
+						Formulir Pengajuan Cuti Kontrak
+					</CardTitle>
 					<p className="text-sm text-muted-foreground">
 						Lengkapi semua kolom yang ditandai wajib diisi
 					</p>
@@ -338,7 +291,29 @@ function BuatCutiPage() {
 				<CardContent className="pt-6">
 					<Form {...form}>
 						<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-							{/* Section 1: Jenis Cuti */}
+							{/* Section 1: Pegawai */}
+							<div className="space-y-4">
+								<SectionHeader icon={User} title="Data Pegawai" />
+								<FormField
+									control={form.control}
+									name="pegawai_id"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Pegawai Kontrak</FormLabel>
+											<FormControl>
+												<PegawaiCombobox
+													value={field.value}
+													onChange={field.onChange}
+													placeholder="Cari dan pilih pegawai kontrak"
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+							</div>
+
+							{/* Section 2: Jenis Cuti */}
 							<div className="space-y-4">
 								<SectionHeader icon={BookOpen} title="Jenis Cuti" />
 								<FormField
@@ -373,13 +348,13 @@ function BuatCutiPage() {
 								/>
 							</div>
 
-							{/* Section 2: Periode */}
+							{/* Section 3: Periode */}
 							<div className="space-y-4">
 								<SectionHeader icon={CalendarDays} title="Periode Cuti" />
 								<div className="grid gap-4 sm:grid-cols-2">
 									<FormField
 										control={form.control}
-										name="usulcuti_tglawal"
+										name="usulcutikontrak_tglawal"
 										render={({ field }) => (
 											<FormItem>
 												<FormLabel>Tanggal Mulai</FormLabel>
@@ -392,7 +367,7 @@ function BuatCutiPage() {
 									/>
 									<FormField
 										control={form.control}
-										name="usulcuti_tglakhir"
+										name="usulcutikontrak_tglakhir"
 										render={({ field }) => (
 											<FormItem>
 												<FormLabel>Tanggal Selesai</FormLabel>
@@ -406,7 +381,7 @@ function BuatCutiPage() {
 								</div>
 								<FormField
 									control={form.control}
-									name="usulcuti_jumlah"
+									name="usulcutikontrak_jumlah"
 									render={({ field }) => (
 										<FormItem className="max-w-[160px]">
 											<FormLabel>Jumlah Hari</FormLabel>
@@ -430,18 +405,18 @@ function BuatCutiPage() {
 								/>
 							</div>
 
-							{/* Section 3: Detail */}
+							{/* Section 4: Detail */}
 							<div className="space-y-4">
 								<SectionHeader icon={FileText} title="Detail Cuti" />
 								<FormField
 									control={form.control}
-									name="usulcuti_alasan"
+									name="usulcutikontrak_alasan"
 									render={({ field }) => (
 										<FormItem>
 											<FormLabel>Alasan Cuti</FormLabel>
 											<FormControl>
 												<Textarea
-													placeholder="Tuliskan alasan cuti Anda secara singkat dan jelas"
+													placeholder="Tuliskan alasan cuti secara singkat dan jelas"
 													className="min-h-[90px] resize-none"
 													{...field}
 												/>
@@ -452,7 +427,7 @@ function BuatCutiPage() {
 								/>
 								<FormField
 									control={form.control}
-									name="usulcuti_alamat"
+									name="usulcutikontrak_alamat"
 									render={({ field }) => (
 										<FormItem>
 											<FormLabel>Alamat Selama Cuti</FormLabel>
@@ -466,53 +441,9 @@ function BuatCutiPage() {
 										</FormItem>
 									)}
 								/>
-								<FormField
-									control={form.control}
-									name="usulcuti_lokasi"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Lokasi</FormLabel>
-											<FormControl>
-												<RadioGroup
-													onValueChange={field.onChange}
-													defaultValue={field.value}
-													className="flex gap-6"
-												>
-													<div className="flex items-center space-x-2">
-														<RadioGroupItem
-															value="Dalam Negeri"
-															id="dalam-negeri"
-														/>
-														<Label
-															htmlFor="dalam-negeri"
-															className="cursor-pointer"
-														>
-															<MapPin className="mr-1 inline h-3.5 w-3.5" />
-															Dalam Negeri
-														</Label>
-													</div>
-													<div className="flex items-center space-x-2">
-														<RadioGroupItem
-															value="Luar Negeri"
-															id="luar-negeri"
-														/>
-														<Label
-															htmlFor="luar-negeri"
-															className="cursor-pointer"
-														>
-															<MapPin className="mr-1 inline h-3.5 w-3.5" />
-															Luar Negeri
-														</Label>
-													</div>
-												</RadioGroup>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
 							</div>
 
-							{/* Section 4: Persetujuan */}
+							{/* Section 5: Persetujuan */}
 							<div className="space-y-4">
 								<SectionHeader icon={Users} title="Pejabat Persetujuan" />
 								<FormField
@@ -525,7 +456,6 @@ function BuatCutiPage() {
 												<PegawaiCombobox
 													value={field.value}
 													onChange={field.onChange}
-													excludeId={user?.pegawai_id}
 													placeholder="Cari dan pilih atasan langsung"
 												/>
 											</FormControl>
@@ -543,7 +473,6 @@ function BuatCutiPage() {
 												<PegawaiCombobox
 													value={field.value}
 													onChange={field.onChange}
-													excludeId={user?.pegawai_id}
 													placeholder="Cari dan pilih pejabat berwenang"
 												/>
 											</FormControl>
@@ -553,74 +482,14 @@ function BuatCutiPage() {
 								/>
 							</div>
 
-							{/* Section 5: File Pengantar (optional) */}
-							<div className="space-y-4">
-								<SectionHeader
-									icon={Paperclip}
-									title="File Pengantar (Opsional)"
-								/>
-								<div className="space-y-2">
-									<p className="text-xs text-muted-foreground">
-										Unggah surat pengantar dalam format PDF, maksimal 2 MB.
-										Kolom ini tidak wajib diisi.
-									</p>
-									<div className="flex items-center gap-3">
-										<input
-											ref={fileInputRef}
-											type="file"
-											accept=".pdf,application/pdf"
-											className="hidden"
-											onChange={handleFileChange}
-										/>
-										<Button
-											type="button"
-											variant="outline"
-											size="sm"
-											onClick={() => fileInputRef.current?.click()}
-										>
-											<Paperclip className="mr-2 h-3.5 w-3.5" />
-											Pilih File PDF
-										</Button>
-										{pendingFile && (
-											<div className="flex items-center gap-2 rounded-md border bg-muted/40 px-3 py-1.5 text-sm">
-												<FileText className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-												<span className="max-w-[200px] truncate">
-													{pendingFile.name}
-												</span>
-												<span className="text-xs text-muted-foreground">
-													({(pendingFile.size / 1024).toFixed(0)} KB)
-												</span>
-												<button
-													type="button"
-													onClick={() => {
-														setPendingFile(null);
-														setFileError(null);
-														if (fileInputRef.current)
-															fileInputRef.current.value = "";
-													}}
-													className="ml-1 text-muted-foreground hover:text-destructive"
-												>
-													<X className="h-3.5 w-3.5" />
-												</button>
-											</div>
-										)}
-									</div>
-									{fileError && (
-										<p className="text-sm font-medium text-destructive">
-											{fileError}
-										</p>
-									)}
-								</div>
-							</div>
-
 							{/* Actions */}
 							<div className="flex items-center gap-3 border-t pt-4">
 								<Button
 									type="submit"
-									disabled={createCuti.isPending || uploadingFile}
+									disabled={createCutiKontrak.isPending}
 									className="min-w-[120px]"
 								>
-									{(createCuti.isPending || uploadingFile) && (
+									{createCutiKontrak.isPending && (
 										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
 									)}
 									Ajukan Cuti
@@ -628,7 +497,7 @@ function BuatCutiPage() {
 								<Button
 									type="button"
 									variant="outline"
-									onClick={() => navigate({ to: "/cuti" })}
+									onClick={() => navigate({ to: "/cuti-kontrak" })}
 								>
 									Batal
 								</Button>

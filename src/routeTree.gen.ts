@@ -22,8 +22,11 @@ import { Route as AuthenticatedPegawaiIndexRouteImport } from './routes/_authent
 import { Route as AuthenticatedCutiIndexRouteImport } from './routes/_authenticated/cuti/index'
 import { Route as AuthenticatedCutiKontrakIndexRouteImport } from './routes/_authenticated/cuti-kontrak/index'
 import { Route as AuthenticatedVerifikasiBawahanRouteImport } from './routes/_authenticated/verifikasi/bawahan'
+import { Route as AuthenticatedPegawaiIdRouteImport } from './routes/_authenticated/pegawai/$id'
 import { Route as AuthenticatedCutiBuatRouteImport } from './routes/_authenticated/cuti/buat'
 import { Route as AuthenticatedCutiIdRouteImport } from './routes/_authenticated/cuti/$id'
+import { Route as AuthenticatedCutiKontrakBuatRouteImport } from './routes/_authenticated/cuti-kontrak/buat'
+import { Route as AuthenticatedCutiKontrakIdRouteImport } from './routes/_authenticated/cuti-kontrak/$id'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -95,6 +98,11 @@ const AuthenticatedVerifikasiBawahanRoute =
     path: '/verifikasi/bawahan',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedPegawaiIdRoute = AuthenticatedPegawaiIdRouteImport.update({
+  id: '/pegawai/$id',
+  path: '/pegawai/$id',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedCutiBuatRoute = AuthenticatedCutiBuatRouteImport.update({
   id: '/cuti/buat',
   path: '/cuti/buat',
@@ -105,6 +113,18 @@ const AuthenticatedCutiIdRoute = AuthenticatedCutiIdRouteImport.update({
   path: '/cuti/$id',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedCutiKontrakBuatRoute =
+  AuthenticatedCutiKontrakBuatRouteImport.update({
+    id: '/cuti-kontrak/buat',
+    path: '/cuti-kontrak/buat',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedCutiKontrakIdRoute =
+  AuthenticatedCutiKontrakIdRouteImport.update({
+    id: '/cuti-kontrak/$id',
+    path: '/cuti-kontrak/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -114,8 +134,11 @@ export interface FileRoutesByFullPath {
   '/laporan': typeof AuthenticatedLaporanRoute
   '/manajemen-user': typeof AuthenticatedManajemenUserRoute
   '/profil': typeof AuthenticatedProfilRoute
+  '/cuti-kontrak/$id': typeof AuthenticatedCutiKontrakIdRoute
+  '/cuti-kontrak/buat': typeof AuthenticatedCutiKontrakBuatRoute
   '/cuti/$id': typeof AuthenticatedCutiIdRoute
   '/cuti/buat': typeof AuthenticatedCutiBuatRoute
+  '/pegawai/$id': typeof AuthenticatedPegawaiIdRoute
   '/verifikasi/bawahan': typeof AuthenticatedVerifikasiBawahanRoute
   '/cuti-kontrak/': typeof AuthenticatedCutiKontrakIndexRoute
   '/cuti/': typeof AuthenticatedCutiIndexRoute
@@ -130,8 +153,11 @@ export interface FileRoutesByTo {
   '/manajemen-user': typeof AuthenticatedManajemenUserRoute
   '/profil': typeof AuthenticatedProfilRoute
   '/': typeof AuthenticatedIndexRoute
+  '/cuti-kontrak/$id': typeof AuthenticatedCutiKontrakIdRoute
+  '/cuti-kontrak/buat': typeof AuthenticatedCutiKontrakBuatRoute
   '/cuti/$id': typeof AuthenticatedCutiIdRoute
   '/cuti/buat': typeof AuthenticatedCutiBuatRoute
+  '/pegawai/$id': typeof AuthenticatedPegawaiIdRoute
   '/verifikasi/bawahan': typeof AuthenticatedVerifikasiBawahanRoute
   '/cuti-kontrak': typeof AuthenticatedCutiKontrakIndexRoute
   '/cuti': typeof AuthenticatedCutiIndexRoute
@@ -148,8 +174,11 @@ export interface FileRoutesById {
   '/_authenticated/manajemen-user': typeof AuthenticatedManajemenUserRoute
   '/_authenticated/profil': typeof AuthenticatedProfilRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/cuti-kontrak/$id': typeof AuthenticatedCutiKontrakIdRoute
+  '/_authenticated/cuti-kontrak/buat': typeof AuthenticatedCutiKontrakBuatRoute
   '/_authenticated/cuti/$id': typeof AuthenticatedCutiIdRoute
   '/_authenticated/cuti/buat': typeof AuthenticatedCutiBuatRoute
+  '/_authenticated/pegawai/$id': typeof AuthenticatedPegawaiIdRoute
   '/_authenticated/verifikasi/bawahan': typeof AuthenticatedVerifikasiBawahanRoute
   '/_authenticated/cuti-kontrak/': typeof AuthenticatedCutiKontrakIndexRoute
   '/_authenticated/cuti/': typeof AuthenticatedCutiIndexRoute
@@ -166,8 +195,11 @@ export interface FileRouteTypes {
     | '/laporan'
     | '/manajemen-user'
     | '/profil'
+    | '/cuti-kontrak/$id'
+    | '/cuti-kontrak/buat'
     | '/cuti/$id'
     | '/cuti/buat'
+    | '/pegawai/$id'
     | '/verifikasi/bawahan'
     | '/cuti-kontrak/'
     | '/cuti/'
@@ -182,8 +214,11 @@ export interface FileRouteTypes {
     | '/manajemen-user'
     | '/profil'
     | '/'
+    | '/cuti-kontrak/$id'
+    | '/cuti-kontrak/buat'
     | '/cuti/$id'
     | '/cuti/buat'
+    | '/pegawai/$id'
     | '/verifikasi/bawahan'
     | '/cuti-kontrak'
     | '/cuti'
@@ -199,8 +234,11 @@ export interface FileRouteTypes {
     | '/_authenticated/manajemen-user'
     | '/_authenticated/profil'
     | '/_authenticated/'
+    | '/_authenticated/cuti-kontrak/$id'
+    | '/_authenticated/cuti-kontrak/buat'
     | '/_authenticated/cuti/$id'
     | '/_authenticated/cuti/buat'
+    | '/_authenticated/pegawai/$id'
     | '/_authenticated/verifikasi/bawahan'
     | '/_authenticated/cuti-kontrak/'
     | '/_authenticated/cuti/'
@@ -306,6 +344,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedVerifikasiBawahanRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/pegawai/$id': {
+      id: '/_authenticated/pegawai/$id'
+      path: '/pegawai/$id'
+      fullPath: '/pegawai/$id'
+      preLoaderRoute: typeof AuthenticatedPegawaiIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/cuti/buat': {
       id: '/_authenticated/cuti/buat'
       path: '/cuti/buat'
@@ -320,6 +365,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCutiIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/cuti-kontrak/buat': {
+      id: '/_authenticated/cuti-kontrak/buat'
+      path: '/cuti-kontrak/buat'
+      fullPath: '/cuti-kontrak/buat'
+      preLoaderRoute: typeof AuthenticatedCutiKontrakBuatRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/cuti-kontrak/$id': {
+      id: '/_authenticated/cuti-kontrak/$id'
+      path: '/cuti-kontrak/$id'
+      fullPath: '/cuti-kontrak/$id'
+      preLoaderRoute: typeof AuthenticatedCutiKontrakIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
@@ -330,8 +389,11 @@ interface AuthenticatedRouteChildren {
   AuthenticatedManajemenUserRoute: typeof AuthenticatedManajemenUserRoute
   AuthenticatedProfilRoute: typeof AuthenticatedProfilRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedCutiKontrakIdRoute: typeof AuthenticatedCutiKontrakIdRoute
+  AuthenticatedCutiKontrakBuatRoute: typeof AuthenticatedCutiKontrakBuatRoute
   AuthenticatedCutiIdRoute: typeof AuthenticatedCutiIdRoute
   AuthenticatedCutiBuatRoute: typeof AuthenticatedCutiBuatRoute
+  AuthenticatedPegawaiIdRoute: typeof AuthenticatedPegawaiIdRoute
   AuthenticatedVerifikasiBawahanRoute: typeof AuthenticatedVerifikasiBawahanRoute
   AuthenticatedCutiKontrakIndexRoute: typeof AuthenticatedCutiKontrakIndexRoute
   AuthenticatedCutiIndexRoute: typeof AuthenticatedCutiIndexRoute
@@ -346,8 +408,11 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedManajemenUserRoute: AuthenticatedManajemenUserRoute,
   AuthenticatedProfilRoute: AuthenticatedProfilRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedCutiKontrakIdRoute: AuthenticatedCutiKontrakIdRoute,
+  AuthenticatedCutiKontrakBuatRoute: AuthenticatedCutiKontrakBuatRoute,
   AuthenticatedCutiIdRoute: AuthenticatedCutiIdRoute,
   AuthenticatedCutiBuatRoute: AuthenticatedCutiBuatRoute,
+  AuthenticatedPegawaiIdRoute: AuthenticatedPegawaiIdRoute,
   AuthenticatedVerifikasiBawahanRoute: AuthenticatedVerifikasiBawahanRoute,
   AuthenticatedCutiKontrakIndexRoute: AuthenticatedCutiKontrakIndexRoute,
   AuthenticatedCutiIndexRoute: AuthenticatedCutiIndexRoute,
