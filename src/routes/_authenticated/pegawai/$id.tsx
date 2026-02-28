@@ -30,12 +30,17 @@ import { formatNamaGelar } from "#/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/pegawai/$id")({
 	beforeLoad: () => {
-		const userStr = localStorage.getItem("user");
-		if (userStr) {
-			const user = JSON.parse(userStr);
+		const stored = localStorage.getItem("user");
+		if (!stored) {
+			throw redirect({ to: "/" });
+		}
+		try {
+			const user = JSON.parse(stored);
 			if (user.role === "Pegawai") {
 				throw redirect({ to: "/" });
 			}
+		} catch {
+			throw redirect({ to: "/" });
 		}
 	},
 	component: PegawaiDetail,

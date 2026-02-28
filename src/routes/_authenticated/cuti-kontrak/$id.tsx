@@ -45,11 +45,16 @@ import type { CutiStatus } from "#/types";
 export const Route = createFileRoute("/_authenticated/cuti-kontrak/$id")({
 	beforeLoad: () => {
 		const stored = localStorage.getItem("user");
-		if (stored) {
+		if (!stored) {
+			throw redirect({ to: "/" });
+		}
+		try {
 			const user = JSON.parse(stored);
 			if (!["Super Admin", "Admin SKPD", "Admin Uker"].includes(user.role)) {
 				throw redirect({ to: "/" });
 			}
+		} catch {
+			throw redirect({ to: "/" });
 		}
 	},
 	component: CutiKontrakDetail,

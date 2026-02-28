@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import {
 	BarChart3,
 	BookOpen,
@@ -85,6 +85,17 @@ import type {
 } from "#/types";
 
 export const Route = createFileRoute("/_authenticated/laporan")({
+	beforeLoad: () => {
+		const stored = localStorage.getItem("user");
+		if (!stored) {
+			throw redirect({ to: "/" });
+		}
+		try {
+			JSON.parse(stored);
+		} catch {
+			throw redirect({ to: "/" });
+		}
+	},
 	component: LaporanPage,
 });
 

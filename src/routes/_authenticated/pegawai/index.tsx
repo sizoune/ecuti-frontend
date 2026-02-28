@@ -27,11 +27,16 @@ import { usePegawaiList } from "#/hooks/use-pegawai";
 export const Route = createFileRoute("/_authenticated/pegawai/")({
 	beforeLoad: () => {
 		const stored = localStorage.getItem("user");
-		if (stored) {
+		if (!stored) {
+			throw redirect({ to: "/" });
+		}
+		try {
 			const user = JSON.parse(stored);
 			if (!["Super Admin", "Admin SKPD", "Admin Uker"].includes(user.role)) {
 				throw redirect({ to: "/" });
 			}
+		} catch {
+			throw redirect({ to: "/" });
 		}
 	},
 	component: PegawaiListPage,

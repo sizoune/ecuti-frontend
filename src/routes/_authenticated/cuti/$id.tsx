@@ -253,6 +253,24 @@ function CutiDetailPage() {
 		);
 	}
 
+	// Access control: only owner or admin can view
+	if (!isAdmin && !isOwner) {
+		return (
+			<div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
+				<FileText className="h-12 w-12 text-muted-foreground/40" />
+				<div>
+					<p className="font-medium text-muted-foreground">Akses Ditolak</p>
+					<p className="mt-1 text-sm text-muted-foreground/70">
+						Anda tidak memiliki akses untuk melihat detail cuti ini.
+					</p>
+				</div>
+				<Button variant="outline" asChild>
+					<Link to="/cuti">Kembali ke daftar</Link>
+				</Button>
+			</div>
+		);
+	}
+
 	const cfg = statusConfig[cuti.usulcuti_status];
 
 	return (
