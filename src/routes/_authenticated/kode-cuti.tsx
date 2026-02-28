@@ -283,12 +283,12 @@ function CreateKodeCutiDialog({
 				<DialogHeader>
 					<DialogTitle>Tambah Kode Cuti</DialogTitle>
 				</DialogHeader>
-				<form onSubmit={handleSubmit} className="space-y-4">
+				<form onSubmit={handleSubmit} className="space-y-4 min-w-0">
 					{isSuperAdmin && (
 						<div className="space-y-1.5">
 							<Label htmlFor="create-skpd">SKPD</Label>
 							<Select value={selectedSkpdId} onValueChange={setSelectedSkpdId}>
-								<SelectTrigger id="create-skpd">
+								<SelectTrigger id="create-skpd" className="w-full">
 									<SelectValue placeholder="Pilih SKPD" />
 								</SelectTrigger>
 								<SelectContent>
