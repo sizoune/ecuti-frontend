@@ -354,7 +354,6 @@ export interface CutiKontrak {
 	usulcuti_alasan: string;
 	usulcuti_alamat: string;
 	usulcuti_status: CutiStatus;
-	usulcuti_tgl: string | null;
 	atasanlangsung_id: number | null;
 	atasanlangsung_status: string | null;
 	pejabat_id: number | null;
