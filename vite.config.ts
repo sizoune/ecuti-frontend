@@ -11,6 +11,9 @@ const config = defineConfig({
 		tanstackRouter({ target: "react", autoCodeSplitting: true }),
 		viteReact(),
 	],
+	preview: {
+		allowedHosts: ["e-cuti-dev.tabalongkab.go.id"],
+	},
 });
 
 export default config;
