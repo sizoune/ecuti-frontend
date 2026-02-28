@@ -131,15 +131,15 @@ function PegawaiListPage() {
 						</div>
 					) : (
 						<>
-							<Table>
+							<Table className="table-fixed w-full">
 								<TableHeader>
 									<TableRow className="hover:bg-transparent">
-										<TableHead>NIP</TableHead>
-										<TableHead>Nama</TableHead>
-										<TableHead>SKPD</TableHead>
-										<TableHead>Golongan</TableHead>
-										<TableHead>Jabatan</TableHead>
-										<TableHead>Status</TableHead>
+										<TableHead className="w-[15%]">NIP</TableHead>
+										<TableHead className="w-[15%]">Nama</TableHead>
+										<TableHead className="w-[28%]">SKPD</TableHead>
+										<TableHead className="w-[12%]">Golongan</TableHead>
+										<TableHead className="w-[22%]">Jabatan</TableHead>
+										<TableHead className="w-[8%]">Status</TableHead>
 									</TableRow>
 								</TableHeader>
 								<TableBody>
@@ -149,28 +149,29 @@ function PegawaiListPage() {
 												key={p.pegawai_id}
 												className="hover:bg-muted/40 transition-colors"
 											>
-												<TableCell className="font-mono text-sm">
+												<TableCell className="font-mono text-sm overflow-hidden text-ellipsis whitespace-nowrap">
 													{p.pegawai_nip}
 												</TableCell>
-												<TableCell className="font-medium">
+												<TableCell className="font-medium overflow-hidden text-ellipsis whitespace-nowrap">
 													<Link
 														to="/pegawai/$id"
 														params={{ id: String(p.pegawai_id) }}
 														className="hover:underline text-primary"
+														title={p.pegawai_nama}
 													>
 														{p.pegawai_nama}
 													</Link>
 												</TableCell>
-												<TableCell className="text-sm text-muted-foreground">
-													{p.skpd_nama ?? "-"}
+												<TableCell className="text-sm text-muted-foreground align-top py-2.5 whitespace-normal">
+													<span className="line-clamp-2">{p.skpd_nama ?? "-"}</span>
 												</TableCell>
-												<TableCell className="text-sm">
+												<TableCell className="text-sm overflow-hidden text-ellipsis whitespace-nowrap">
 													{p.golongan_nama ?? "-"}
 												</TableCell>
-												<TableCell className="text-sm">
-													{p.jabatan_nama ?? "-"}
+												<TableCell className="text-sm align-top py-2.5 whitespace-normal">
+													<span className="line-clamp-2">{p.jabatan_nama ?? "-"}</span>
 												</TableCell>
-												<TableCell>
+												<TableCell className="overflow-hidden">
 													{getStatusBadge(p.pegawai_kedudukanpns)}
 												</TableCell>
 											</TableRow>
